@@ -1,9 +1,0 @@
-#!/bin/sh
-
-case "$1" in
-  remove)
-    stop monasca-api
-  ;;
-esac
-
-exit 0
