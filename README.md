@@ -1,1 +1,0 @@
-# monasca-events-api
