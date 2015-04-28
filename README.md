@@ -1,37 +1,10 @@
 # Overview
 
-`monasca-api` is a RESTful API server that is designed with a layered architecture [layered architecture](http://en.wikipedia.org/wiki/Multilayered_architecture).
-
-The full API Specification can be found in [docs/monasca-api-spec.md](docs/monasca-api-spec.md)
-
-## Java Build
-
-Requires monasca-common from https://github.com/stackforge/monasca-common. Download and do mvn install. Then:
-
-```
-cd java
-mvn clean package
-```
-
-# StackForge Java Build
-
-There is a pom.xml in the base directory that should only be used for the StackForge build. The StackForge build is a rather strange build because of the limitations of the current StackForge java jobs and infrastructure. We have found that the API runs faster if built with maven 3 but the StackForge nodes only have maven 2. This build checks the version of maven and if not maven 3, it downloads a version of maven 3 and uses it. This build depends on jars that are from monasca-common. That StrackForge build uploads the completed jars to http://tarballs.openstack.org/ci/monasca-common, but they are just regular jars, and not in a maven repository and sometimes zuul takes a long time to do the upload. Hence, the first thing the maven build from the base project does is invoke build_common.sh in the common directory. This script clones monasca-common and then invokes maven 3 to build monasca-common in the common directory and install the jars in the local maven repository.
-
-Since this is all rather complex, that part of the build only works on StackForge so follow the simple instruction above if you are building your own monasca-api.
-
-Currently this build is executed on the bare-precise nodes in StackForge and they only have maven 2. So, this build must be kept compatible with Maven 2. If another monasca-common jar is added as a dependency to java/pom.xml, it must also be added to download/download.sh.
-
-Combining monasca-common, monasca-thresh, monasaca-api and monasca-persister into one build would vastly simplify the builds but that is a future task.`
-
-## Usage
-
-```
-java -jar target/monasca-api.jar server config-file.yml
-```
+`monasca-events-api` is a RESTful API server that is designed with a layered architecture [layered architecture](http://en.wikipedia.org/wiki/Multilayered_architecture).
 
 ## Keystone Configuration
 
-For secure operation of the Monasca API, the API must be configured to use Keystone in the configuration file under the middleware section. Monasca only works with a Keystone v3 server. The important parts of the configuration are explained below:
+For secure operation of the Monasca Events API, the API must be configured to use Keystone in the configuration file under the middleware section. Monasca only works with a Keystone v3 server. The important parts of the configuration are explained below:
 
 * serverVIP - This is the hostname or IP Address of the Keystone server
 * serverPort - The port for the Keystone server
@@ -53,40 +26,12 @@ For secure operation of the Monasca API, the API must be configured to use Keyst
 
 ### Keystone Roles
 
-The Monasca API has two levels of access:
-# Full access - user can read/write metrics and Alarm Definitions and Alarms
-# Agent access - user can only write metrics
+The Monasca Events API has two levels of access:
+# Full access - user can read/write Events, Stream Definitions, and Transform Definitions
 
-The reason for the "Agent access" level is because the Monasca Agent must be configured to use a Keystone user. Since the user and password are configured onto the all of the systems running the Monasca Agent, this user is most in danger of being compromised. If this user is limited to only writing metrics, then the damage can be limited.
+### Installation
 
-To configure the user to have full access, the user must have a role that is listed in defaultAuthorizedRoles. To configure a user to have only "Agent access", the user must have a role in agentAuthorizedRoles and none of the roles in defaultAuthorizedRoles.
-
-## Design Overview
-
-### Architectural layers
-
-Requests flow through the following architectural layers from top to bottom:
-
-* Resource
-  * Serves as the entrypoint into the service. 
-  * Responsible for handling web service requests, and performing structural request validation.
-* Application
-  * Responsible for providing application level implementations for specific use cases.
-* Domain
-  * Contains the technology agnostic core domain model and domain service definitions.
-  * Responsible for upholding invariants and defining state transitions.
-* Infrastructure
-  * Contains technology specific implementations of domain services.
-  
-## Documentation
-
-* API Specification: [/docs/monasca-api-spec.md](/docs/monasca-api-spec.md).
-
-
-python monasca api implementation
-=================================
-
-To install the python api implementation, git clone the source and run the
+To install the events api, git clone the source and run the
 following command::
 
     sudo python setup.py install
@@ -95,8 +40,8 @@ If it installs successfully, you will need to make changes to the following
 two files to reflect your system settings, especially where kafka server is
 located::
 
-    /etc/monasca/monasca.ini
-    /etc/monasca/monasca.conf
+    /etc/monasca/events_api.ini
+    /etc/monasca/events_api.conf
 
 Once the configurations are modified to match your environment, you can start
 up the server by following the following instructions.
@@ -105,11 +50,11 @@ To start the server, run the following command:
 
     Running the server in foreground mode
     gunicorn -k eventlet --worker-connections=2000 --backlog=1000
-             --paste /etc/monasca/monasca.ini
+             --paste /etc/monasca/events_api.ini
 
     Running the server as daemons
     gunicorn -k eventlet --worker-connections=2000 --backlog=1000
-             --paste /etc/monasca/monasca.ini -D
+             --paste /etc/monasca/events_api.ini -D
 
 To check if the code follows python coding style, run the following command
 from the root directory of this project
@@ -124,7 +69,7 @@ directory of this project
 
 # License
 
-Copyright (c) 2014 Hewlett-Packard Development Company, L.P.
+Copyright (c) 2015 Hewlett-Packard Development Company, L.P.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
