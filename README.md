@@ -24,21 +24,17 @@ For secure operation of the Monasca Events API, the API must be configured to us
 * adminToken - A valid admin user token if adminAuthMethod is token
 * timeToCacheToken - How long the Monasca API should cache the user's token before checking it again
 
-### Keystone Roles
-
-The Monasca Events API has two levels of access:
-# Full access - user can read/write Events, Stream Definitions, and Transform Definitions
-
 ### Installation
 
 To install the events api, git clone the source and run the
-following command::
+following commands:
 
     sudo python setup.py install
+    sudo mkdir -p /var/log/monasca/events
 
 If it installs successfully, you will need to make changes to the following
 two files to reflect your system settings, especially where kafka server is
-located::
+located:
 
     /etc/monasca/events_api.ini
     /etc/monasca/events_api.conf
