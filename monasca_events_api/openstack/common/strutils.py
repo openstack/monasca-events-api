@@ -24,7 +24,7 @@ import unicodedata
 
 import six
 
-from monasca.openstack.common.gettextutils import _
+from monasca_events_api.openstack.common.gettextutils import _
 
 
 UNIT_PREFIX_EXPONENT = {

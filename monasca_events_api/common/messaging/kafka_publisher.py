@@ -18,9 +18,9 @@ from kafka import common
 from kafka import producer
 from oslo.config import cfg
 
-from monasca.common.messaging import exceptions
-from monasca.common.messaging import publisher
-from monasca.openstack.common import log
+from monasca_events_api.common.messaging import exceptions
+from monasca_events_api.common.messaging import publisher
+from monasca_events_api.openstack.common import log
 
 
 LOG = log.getLogger(__name__)

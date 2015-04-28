@@ -29,8 +29,8 @@ import eventlet.backdoor
 import greenlet
 from oslo.config import cfg
 
-from monasca.openstack.common.gettextutils import _LI
-from monasca.openstack.common import log as logging
+from monasca_events_api.openstack.common.gettextutils import _LI
+from monasca_events_api.openstack.common import log as logging
 
 help_for_backdoor_port = (
     "Acceptable values are 0, <port>, and <start>:<end>, where 0 results "

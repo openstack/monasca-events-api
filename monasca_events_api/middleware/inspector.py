@@ -25,7 +25,7 @@ class Inspector(object):
         pipeline = inspector api
 
         [filter:inspector]
-        use = egg: monasca_api_server#inspector
+        use = egg: monasca_events_api_api_server#inspector
     """
     def __init__(self, app, conf):
         """Inspect each request

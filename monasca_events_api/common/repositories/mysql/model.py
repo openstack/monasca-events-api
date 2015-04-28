@@ -15,7 +15,7 @@
 from oslo.config import cfg
 import peewee
 
-from monasca.openstack.common import log
+from monasca_events_api.openstack.common import log
 
 
 LOG = log.getLogger(__name__)

@@ -15,7 +15,7 @@
 
 import fixtures
 
-from monasca.openstack.common import lockutils
+from monasca_events_api.openstack.common import lockutils
 
 
 class LockFixture(fixtures.Fixture):

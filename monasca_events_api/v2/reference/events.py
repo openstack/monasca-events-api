@@ -18,17 +18,17 @@ import falcon
 
 import collections
 
-from monasca.api import monasca_events_api_v2
-from monasca.common.messaging import exceptions as message_queue_exceptions
-from monasca.common.messaging.message_formats import events_transform_factory
-from monasca.common import resource_api
-from monasca.openstack.common import log
-from monasca.v2.common.schemas import (
+from monasca_events_api.api import monasca_events_api_v2
+from monasca_events_api.common.messaging import exceptions as message_queue_exceptions
+from monasca_events_api.common.messaging.message_formats import events_transform_factory
+from monasca_events_api.common import resource_api
+from monasca_events_api.openstack.common import log
+from monasca_events_api.v2.common.schemas import (
     events_request_body_schema as schemas_event)
-from monasca.v2.common.schemas import exceptions as schemas_exceptions
-from monasca.v2.common import utils
-from monasca.v2.reference import helpers
-from monasca.v2.reference import resource
+from monasca_events_api.v2.common.schemas import exceptions as schemas_exceptions
+from monasca_events_api.v2.common import utils
+from monasca_events_api.v2.reference import helpers
+from monasca_events_api.v2.reference import resource
 
 from oslo.config import cfg
 
@@ -52,11 +52,11 @@ class Events(monasca_events_api_v2.EventsV2API):
         self._event_transform = (
             events_transform_factory.create_events_transform())
         self._message_queue = (
-            resource_api.init_driver('monasca.messaging',
+            resource_api.init_driver('monasca_events_api.messaging',
                                      cfg.CONF.messaging.driver,
                                      ['raw-events']))
         self._events_repo = resource_api.init_driver(
-            'monasca.repositories', cfg.CONF.repositories.events_driver)
+            'monasca_events_api.repositories', cfg.CONF.repositories.events_driver)
 
     def _validate_event(self, event):
         """Validates the event

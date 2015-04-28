@@ -28,8 +28,8 @@ import weakref
 
 from oslo.config import cfg
 
-from monasca.openstack.common import fileutils
-from monasca.openstack.common.gettextutils import _, _LE, _LI
+from monasca_events_api.openstack.common import fileutils
+from monasca_events_api.openstack.common.gettextutils import _, _LE, _LI
 
 
 LOG = logging.getLogger(__name__)

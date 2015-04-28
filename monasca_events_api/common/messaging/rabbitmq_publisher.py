@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from monasca.common.messaging import publisher
+from monasca_events_api.common.messaging import publisher
 
 
 class RabbitmqPublisher(publisher.Publisher):

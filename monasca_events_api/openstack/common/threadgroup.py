@@ -16,8 +16,8 @@ import threading
 import eventlet
 from eventlet import greenpool
 
-from monasca.openstack.common import log as logging
-from monasca.openstack.common import loopingcall
+from monasca_events_api.openstack.common import log as logging
+from monasca_events_api.openstack.common import loopingcall
 
 
 LOG = logging.getLogger(__name__)

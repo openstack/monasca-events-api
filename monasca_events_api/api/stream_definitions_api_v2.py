@@ -11,8 +11,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from monasca.common import resource_api
-from monasca.openstack.common import log
+from monasca_events_api.common import resource_api
+from monasca_events_api.openstack.common import log
 
 LOG = log.getLogger(__name__)
 

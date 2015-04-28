@@ -15,9 +15,9 @@
 import model
 import peewee
 
-from monasca.common.repositories import exceptions
-from monasca.common.repositories import transforms_repository
-from monasca.openstack.common import log
+from monasca_events_api.common.repositories import exceptions
+from monasca_events_api.common.repositories import transforms_repository
+from monasca_events_api.openstack.common import log
 
 
 LOG = log.getLogger(__name__)

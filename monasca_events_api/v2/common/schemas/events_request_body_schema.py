@@ -14,8 +14,8 @@
 
 import voluptuous
 
-from monasca.openstack.common import log
-from monasca.v2.common.schemas import exceptions
+from monasca_events_api.openstack.common import log
+from monasca_events_api.v2.common.schemas import exceptions
 
 LOG = log.getLogger(__name__)
 

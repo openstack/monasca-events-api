@@ -24,7 +24,7 @@ import traceback
 
 import six
 
-from monasca.openstack.common.gettextutils import _LE
+from monasca_events_api.openstack.common.gettextutils import _LE
 
 
 class save_and_reraise_exception(object):

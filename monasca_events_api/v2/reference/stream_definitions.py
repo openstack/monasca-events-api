@@ -18,16 +18,16 @@ import re
 import falcon
 from oslo.config import cfg
 
-from monasca.api import stream_definitions_api_v2
-from monasca.common.messaging import exceptions as message_queue_exceptions
-from monasca.common.repositories import exceptions
-from monasca.common import resource_api
-from monasca.openstack.common import log
-from monasca.v2.common.schemas import (stream_definition_request_body_schema
-                                       as schema_streams)
-from monasca.v2.common.schemas import exceptions as schemas_exceptions
-from monasca.v2.reference import helpers
-from monasca.v2.reference import resource
+from monasca_events_api.api import stream_definitions_api_v2
+from monasca_events_api.common.messaging import exceptions as message_queue_exceptions
+from monasca_events_api.common.repositories import exceptions
+from monasca_events_api.common import resource_api
+from monasca_events_api.openstack.common import log
+from monasca_events_api.v2.common.schemas import (stream_definition_request_body_schema
+                                                  as schema_streams)
+from monasca_events_api.v2.common.schemas import exceptions as schemas_exceptions
+from monasca_events_api.v2.reference import helpers
+from monasca_events_api.v2.reference import resource
 
 
 LOG = log.getLogger(__name__)
@@ -51,9 +51,9 @@ class StreamDefinitions(stream_definitions_api_v2.StreamDefinitionsV2API):
                 cfg.CONF.security.default_authorized_roles +
                 cfg.CONF.security.agent_authorized_roles)
             self._stream_definitions_repo = resource_api.init_driver(
-                'monasca.repositories', cfg.CONF.repositories.streams_driver)
+                'monasca_events_api.repositories', cfg.CONF.repositories.streams_driver)
             self.stream_definition_event_message_queue = (
-                resource_api.init_driver('monasca.messaging',
+                resource_api.init_driver('monasca_events_api.messaging',
                                          cfg.CONF.messaging.driver,
                                          (['stream-definitions'])))
         except Exception as ex:
@@ -278,7 +278,7 @@ class StreamDefinitions(stream_definitions_api_v2.StreamDefinitionsV2API):
                                            u'group_by': group_by,
                                            u'fire_criteria': fire_criteria,
                                            u'expiration': expiration}
-            }
+        }
 
         self.send_event(self.stream_definition_event_message_queue,
                         stream_definition_created_event_msg)

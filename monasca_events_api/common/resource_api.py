@@ -18,7 +18,7 @@ import falcon
 from falcon import api_helpers
 from stevedore import driver
 
-from monasca.openstack.common import log
+from monasca_events_api.openstack.common import log
 
 RESOURCE_METHOD_FLAG = 'fab05a04-b861-4651-bd0c-9cb3eb9a6088'
 
@@ -29,7 +29,7 @@ def init_driver(namespace, driver_name, drv_invoke_args=()):
     """Initialize the resource driver and returns it.
 
     :param namespace: the resource namespace (in setup.cfg).
-    :param driver_name: the driver name (in monasca.conf)
+    :param driver_name: the driver name (in monasca_events_api.conf)
     :param invoke_args: args to pass to the driver (a tuple)
     """
     mgr = driver.DriverManager(namespace=namespace, name=driver_name,
@@ -135,7 +135,7 @@ class ResourceAPI(falcon.API):
 
         :param resource_name: the name of the resource.
         :param namespace: the resource namespace (in setup.cfg).
-        :param driver_name: the driver name (in monasca.conf)
+        :param driver_name: the driver name (in monasca_events_api.conf)
         :param invoke_args: args to pass to the driver (a tuple)
         :param uri: the uri to associate with the resource
         """

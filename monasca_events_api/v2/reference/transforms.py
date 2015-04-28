@@ -17,15 +17,15 @@ import json
 import falcon
 from oslo.config import cfg
 
-from monasca.api import monasca_transforms_api_v2
-from monasca.common.repositories import exceptions as repository_exceptions
-from monasca.common import resource_api
-from monasca.openstack.common import log
-from monasca.openstack.common import uuidutils
-from monasca.v2.common.schemas import (exceptions as schemas_exceptions)
-from monasca.v2.common.schemas import (
+from monasca_events_api.api import monasca_transforms_api_v2
+from monasca_events_api.common.repositories import exceptions as repository_exceptions
+from monasca_events_api.common import resource_api
+from monasca_events_api.openstack.common import log
+from monasca_events_api.openstack.common import uuidutils
+from monasca_events_api.v2.common.schemas import (exceptions as schemas_exceptions)
+from monasca_events_api.v2.common.schemas import (
     transforms_request_body_schema as schemas_transforms)
-from monasca.v2.reference import helpers
+from monasca_events_api.v2.reference import helpers
 
 
 LOG = log.getLogger(__name__)
@@ -39,7 +39,7 @@ class Transforms(monasca_transforms_api_v2.TransformsV2API):
         self._default_authorized_roles = (
             cfg.CONF.security.default_authorized_roles)
         self._transforms_repo = resource_api.init_driver(
-            'monasca.repositories', cfg.CONF.repositories.transforms_driver)
+            'monasca_events_api.repositories', cfg.CONF.repositories.transforms_driver)
 
     def _validate_transform(self, transform):
         """Validates the transform

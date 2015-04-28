@@ -18,8 +18,8 @@ import errno
 import os
 import tempfile
 
-from monasca.openstack.common import excutils
-from monasca.openstack.common import log as logging
+from monasca_events_api.openstack.common import excutils
+from monasca_events_api.openstack.common import log as logging
 
 LOG = logging.getLogger(__name__)
 

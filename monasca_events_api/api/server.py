@@ -22,10 +22,10 @@ import paste.deploy
 from stevedore import named
 
 
-from monasca.common import resource_api
-from monasca.openstack.common import log
+from monasca_events_api.common import resource_api
+from monasca_events_api.openstack.common import log
 
-DISPATCHER_NAMESPACE = 'monasca.dispatcher'
+DISPATCHER_NAMESPACE = 'monasca_events_api.dispatcher'
 
 OPTS = [
     cfg.MultiStrOpt('dispatcher',
@@ -38,10 +38,12 @@ LOG = log.getLogger(__name__)
 
 
 def api_app(conf):
-    cfg.CONF(args=[], project='monasca')
+    cfg.CONF(args=[],
+             project='monasca_events_api',
+             default_config_files=["/etc/monasca/events_api.conf"])
     log_levels = (cfg.CONF.default_log_levels)
     cfg.set_defaults(log.log_opts, default_log_levels=log_levels)
-    log.setup('monasca')
+    log.setup('monasca_events_api')
 
     dispatcher_manager = named.NamedExtensionManager(
         namespace=DISPATCHER_NAMESPACE,
@@ -68,7 +70,7 @@ def api_app(conf):
 
 if __name__ == '__main__':
     wsgi_app = (
-        paste.deploy.loadapp('config:etc/monasca.ini',
+        paste.deploy.loadapp('config:etc/events_api.ini',
                              relative_to=os.getcwd()))
     httpd = simple_server.make_server('127.0.0.1', 8080, wsgi_app)
     httpd.serve_forever()

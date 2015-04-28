@@ -16,11 +16,11 @@ import uuid
 import MySQLdb
 from oslo_utils import timeutils
 
-from monasca.common.repositories import constants
-from monasca.common.repositories import exceptions
-from monasca.common.repositories.mysql import mysql_repository
-from monasca.common.repositories import streams_repository as sdr
-from monasca.openstack.common import log
+from monasca_events_api.common.repositories import constants
+from monasca_events_api.common.repositories import exceptions
+from monasca_events_api.common.repositories.mysql import mysql_repository
+from monasca_events_api.common.repositories import streams_repository as sdr
+from monasca_events_api.openstack.common import log
 
 
 LOG = log.getLogger(__name__)

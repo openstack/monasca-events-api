@@ -59,10 +59,10 @@ else:
 import six
 import six.moves.xmlrpc_client as xmlrpclib
 
-from monasca.openstack.common import gettextutils
-from monasca.openstack.common import importutils
-from monasca.openstack.common import strutils
-from monasca.openstack.common import timeutils
+from monasca_events_api.openstack.common import gettextutils
+from monasca_events_api.openstack.common import importutils
+from monasca_events_api.openstack.common import strutils
+from monasca_events_api.openstack.common import timeutils
 
 netaddr = importutils.try_import("netaddr")
 

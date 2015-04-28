@@ -59,7 +59,7 @@ def import_module(import_str):
 
 
 def import_versioned_module(version, submodule=None):
-    module = 'monasca.v%s' % version
+    module = 'monasca_events_api.v%s' % version
     if submodule:
         module = '.'.join((module, submodule))
     return import_module(module)

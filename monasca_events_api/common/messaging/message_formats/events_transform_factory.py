@@ -14,9 +14,9 @@
 
 from oslo.config import cfg
 
-import monasca.common.messaging.message_formats.cadf.events as cadf_events
-import monasca.common.messaging.message_formats.identity.events as ident_events
-import monasca.common.messaging.message_formats.reference.events as ref_events
+import monasca_events_api.common.messaging.message_formats.cadf.events as cadf_events
+import monasca_events_api.common.messaging.message_formats.identity.events as ident_events
+import monasca_events_api.common.messaging.message_formats.reference.events as ref_events
 
 
 def create_events_transform():

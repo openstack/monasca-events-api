@@ -14,9 +14,9 @@
 
 from oslo.config import cfg
 
-import monasca.common.messaging.message_formats.cadf.metrics as cadf_metrics
-import monasca.common.messaging.message_formats.identity.metrics as id_metrics
-import monasca.common.messaging.message_formats.reference.metrics as r_metrics
+import monasca_events_api.common.messaging.message_formats.cadf.metrics as cadf_metrics
+import monasca_events_api.common.messaging.message_formats.identity.metrics as id_metrics
+import monasca_events_api.common.messaging.message_formats.reference.metrics as r_metrics
 
 
 def create_metrics_transform():

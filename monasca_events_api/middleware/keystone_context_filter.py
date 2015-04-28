@@ -14,8 +14,8 @@
 
 import falcon
 
-from monasca.middleware import context
-from monasca.openstack.common import log
+from monasca_events_api.middleware import context
+from monasca_events_api.openstack.common import log
 
 from oslo.middleware import request_id
 from oslo.serialization import jsonutils
@@ -91,7 +91,7 @@ class KeystoneContextFilter(object):
                                      request_id=req_id,
                                      user_auth_plugin=user_auth_plugin)
 
-        env['monasca.context'] = ctx
+        env['monasca_events_api.context'] = ctx
 
         LOG.debug("Keystone Context succesfully created.")
 

@@ -48,9 +48,6 @@ cfg.CONF.register_opts(security_opts, security_group)
 
 messaging_opts = [cfg.StrOpt('driver', default='kafka',
                              help='The message queue driver to use'),
-                  cfg.StrOpt('metrics_message_format', default='reference',
-                             help='The type of metrics message format to '
-                                  'publish to the message queue'),
                   cfg.StrOpt('events_message_format', default='reference',
                              help='The type of events message format to '
                                   'publish to the message queue')]
@@ -60,21 +57,12 @@ cfg.CONF.register_group(messaging_group)
 cfg.CONF.register_opts(messaging_opts, messaging_group)
 
 repositories_opts = [
-    cfg.StrOpt('metrics_driver', default='influxdb_metrics_repo',
-               help='The repository driver to use for metrics'),
-    cfg.StrOpt('alarm_definitions_driver',
-               default='mysql_alarm_definitions_repo',
-               help='The repository driver to use for alarm definitions'),
-    cfg.StrOpt('alarms_driver', default='mysql_alarms_repo',
-               help='The repository driver to use for alarms'),
     cfg.StrOpt('streams_driver', default='mysql_streams_repo',
                help='The repository driver to use for streams'),
     cfg.StrOpt('events_driver', default='mysql_events_repo',
                help='The repository driver to use for events'),
     cfg.StrOpt('transforms_driver', default='mysql_transforms_repo',
-               help='The repository driver to use for transforms'),
-    cfg.StrOpt('notifications_driver', default='mysql_notifications_repo',
-               help='The repository driver to use for notifications')]
+               help='The repository driver to use for transforms')]
 
 repositories_group = cfg.OptGroup(name='repositories', title='repositories')
 cfg.CONF.register_group(repositories_group)
@@ -83,8 +71,6 @@ cfg.CONF.register_opts(repositories_opts, repositories_group)
 
 kafka_opts = [cfg.StrOpt('uri', help='Address to kafka server. For example: '
                                      'uri=192.168.1.191:9092'),
-              cfg.StrOpt('metrics_topic', default='metrics',
-                         help='The topic that metrics will be published too.'),
               cfg.StrOpt('events_topic', default='raw-events',
                          help='The topic that events will be published too.'),
               cfg.StrOpt('group', default='api',
@@ -116,14 +102,6 @@ kafka_opts = [cfg.StrOpt('uri', help='Address to kafka server. For example: '
 kafka_group = cfg.OptGroup(name='kafka', title='title')
 cfg.CONF.register_group(kafka_group)
 cfg.CONF.register_opts(kafka_opts, kafka_group)
-
-influxdb_opts = [cfg.StrOpt('database_name'), cfg.StrOpt('ip_address'),
-                 cfg.StrOpt('port'), cfg.StrOpt('user'),
-                 cfg.StrOpt('password')]
-
-influxdb_group = cfg.OptGroup(name='influxdb', title='influxdb')
-cfg.CONF.register_group(influxdb_group)
-cfg.CONF.register_opts(influxdb_opts, influxdb_group)
 
 mysql_opts = [cfg.StrOpt('database_name'), cfg.StrOpt('hostname'),
               cfg.StrOpt('username'), cfg.StrOpt('password')]

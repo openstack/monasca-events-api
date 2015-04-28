@@ -43,13 +43,13 @@ from six import moves
 
 _PY26 = sys.version_info[0:2] == (2, 6)
 
-from monasca.openstack.common.gettextutils import _
-from monasca.openstack.common import importutils
-from monasca.openstack.common import jsonutils
-from monasca.openstack.common import local
+from monasca_events_api.openstack.common.gettextutils import _
+from monasca_events_api.openstack.common import importutils
+from monasca_events_api.openstack.common import jsonutils
+from monasca_events_api.openstack.common import local
 # NOTE(flaper87): Pls, remove when graduating this module
 # from the incubator.
-from monasca.openstack.common.strutils import mask_password  # noqa
+from monasca_events_api.openstack.common.strutils import mask_password  # noqa
 
 
 _DEFAULT_LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -497,7 +497,7 @@ def _setup_logging_from_conf(project, version):
     if CONF.publish_errors:
         try:
             handler = importutils.import_object(
-                "monasca.openstack.common.log_handler.PublishErrorsHandler",
+                "monasca_events_api.openstack.common.log_handler.PublishErrorsHandler",
                 logging.ERROR)
         except ImportError:
             handler = importutils.import_object(

@@ -12,13 +12,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""RequestContext: context for requests that persist through monasca."""
+"""RequestContext: context for requests that persist through monasca_events_api."""
 
 import uuid
 
 from oslo.utils import timeutils
 
-from monasca.openstack.common import log
+from monasca_events_api.openstack.common import log
 
 LOG = log.getLogger(__name__)
 

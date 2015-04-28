@@ -37,15 +37,15 @@ import eventlet
 from eventlet import event
 from oslo.config import cfg
 
-from monasca.openstack.common import eventlet_backdoor
-from monasca.openstack.common.gettextutils import _LE, _LI, _LW
-from monasca.openstack.common import importutils
-from monasca.openstack.common import log as logging
-from monasca.openstack.common import systemd
-from monasca.openstack.common import threadgroup
+from monasca_events_api.openstack.common import eventlet_backdoor
+from monasca_events_api.openstack.common.gettextutils import _LE, _LI, _LW
+from monasca_events_api.openstack.common import importutils
+from monasca_events_api.openstack.common import log as logging
+from monasca_events_api.openstack.common import systemd
+from monasca_events_api.openstack.common import threadgroup
 
 
-rpc = importutils.try_import('monasca.openstack.common.rpc')
+rpc = importutils.try_import('monasca_events_api.openstack.common.rpc')
 CONF = cfg.CONF
 LOG = logging.getLogger(__name__)
 

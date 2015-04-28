@@ -19,11 +19,9 @@ import urlparse
 import falcon
 import simplejson
 
-from monasca.common.repositories import constants
-from monasca.openstack.common import log
-from monasca.v2.common.schemas import dimensions_schema
-from monasca.v2.common.schemas import exceptions as schemas_exceptions
-from monasca.v2.common.schemas import metric_name_schema
+from monasca_events_api.common.repositories import constants
+from monasca_events_api.openstack.common import log
+from monasca_events_api.v2.common.schemas import exceptions as schemas_exceptions
 
 LOG = log.getLogger(__name__)
 
@@ -243,32 +241,6 @@ def get_query_period(req):
         else:
             return None
     except Exception as ex:
-        LOG.debug(ex)
-        raise falcon.HTTPBadRequest('Bad request', ex.message)
-
-
-def validate_query_name(name):
-    """Validates the query param name.
-
-    :param name: Query param name.
-    :raises falcon.HTTPBadRequest: If name is not valid.
-    """
-    try:
-        metric_name_schema.validate(name)
-    except schemas_exceptions.ValidationException as ex:
-        LOG.debug(ex)
-        raise falcon.HTTPBadRequest('Bad request', ex.message)
-
-
-def validate_query_dimensions(dimensions):
-    """Validates the query param dimensions.
-
-    :param dimensions: Query param dimensions.
-    :raises falcon.HTTPBadRequest: If dimensions are not valid.
-    """
-    try:
-        dimensions_schema.validate(dimensions)
-    except schemas_exceptions.ValidationException as ex:
         LOG.debug(ex)
         raise falcon.HTTPBadRequest('Bad request', ex.message)
 

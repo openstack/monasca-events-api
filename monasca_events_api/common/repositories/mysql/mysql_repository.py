@@ -15,8 +15,8 @@
 import MySQLdb as mdb
 from oslo.config import cfg
 
-from monasca.common.repositories import exceptions
-from monasca.openstack.common import log
+from monasca_events_api.common.repositories import exceptions
+from monasca_events_api.openstack.common import log
 
 
 LOG = log.getLogger(__name__)
