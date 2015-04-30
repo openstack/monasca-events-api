@@ -17,29 +17,29 @@ import json
 import falcon
 from oslo.config import cfg
 
+import simport
+
 from monasca_events_api.api import monasca_transforms_api_v2
 from monasca_events_api.common.repositories import exceptions as repository_exceptions
 from monasca_events_api.common import resource_api
 from monasca_events_api.openstack.common import log
 from monasca_events_api.openstack.common import uuidutils
+from monasca_events_api.v2.common import helpers
 from monasca_events_api.v2.common.schemas import (exceptions as schemas_exceptions)
 from monasca_events_api.v2.common.schemas import (
     transforms_request_body_schema as schemas_transforms)
-from monasca_events_api.v2.reference import helpers
 
 
 LOG = log.getLogger(__name__)
 
 
 class Transforms(monasca_transforms_api_v2.TransformsV2API):
-    def __init__(self, global_conf):
-
-        super(Transforms, self).__init__(global_conf)
+    def __init__(self):
         self._region = cfg.CONF.region
         self._default_authorized_roles = (
             cfg.CONF.security.default_authorized_roles)
-        self._transforms_repo = resource_api.init_driver(
-            'monasca_events_api.repositories', cfg.CONF.repositories.transforms_driver)
+        self._transforms_repo = (
+            simport.load(cfg.CONF.repositories.transforms)())
 
     def _validate_transform(self, transform):
         """Validates the transform
@@ -100,7 +100,7 @@ class Transforms(monasca_transforms_api_v2.TransformsV2API):
             raise falcon.HTTPInternalServerError('Service unavailable',
                                                  ex.message)
 
-    @resource_api.Restify('/v2.0/events/transforms', method='post')
+    @resource_api.Restify('/v2.0/transforms', method='post')
     def do_post_transforms(self, req, res):
         helpers.validate_json_content_type(req)
         helpers.validate_authorization(req, self._default_authorized_roles)
@@ -112,14 +112,14 @@ class Transforms(monasca_transforms_api_v2.TransformsV2API):
         res.body = self._create_transform_response(id, transform)
         res.status = falcon.HTTP_200
 
-    @resource_api.Restify('/v2.0/events/transforms', method='get')
+    @resource_api.Restify('/v2.0/transforms', method='get')
     def do_get_transforms(self, req, res):
         helpers.validate_authorization(req, self._default_authorized_roles)
         tenant_id = helpers.get_tenant_id(req)
         res.body = self._list_transforms(tenant_id)
         res.status = falcon.HTTP_200
 
-    @resource_api.Restify('/v2.0/events/transforms/{transform_id}',
+    @resource_api.Restify('/v2.0/transforms/{transform_id}',
                           method='delete')
     def do_delete_transforms(self, req, res, transform_id):
         helpers.validate_authorization(req, self._default_authorized_roles)

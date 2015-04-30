@@ -30,7 +30,7 @@ To install the events api, git clone the source and run the
 following commands:
 
     sudo python setup.py install
-    sudo mkdir -p /var/log/monasca/events
+    sudo mkdir -p /var/log/monasca/events_api
 
 If it installs successfully, you will need to make changes to the following
 two files to reflect your system settings, especially where kafka server is

@@ -16,26 +16,12 @@
 
 import falcon
 from falcon import api_helpers
-from stevedore import driver
 
 from monasca_events_api.openstack.common import log
 
 RESOURCE_METHOD_FLAG = 'fab05a04-b861-4651-bd0c-9cb3eb9a6088'
 
 LOG = log.getLogger(__name__)
-
-
-def init_driver(namespace, driver_name, drv_invoke_args=()):
-    """Initialize the resource driver and returns it.
-
-    :param namespace: the resource namespace (in setup.cfg).
-    :param driver_name: the driver name (in monasca_events_api.conf)
-    :param invoke_args: args to pass to the driver (a tuple)
-    """
-    mgr = driver.DriverManager(namespace=namespace, name=driver_name,
-                               invoke_on_load=True,
-                               invoke_args=drv_invoke_args)
-    return mgr.driver
 
 
 class Restify(object):
@@ -128,20 +114,3 @@ class ResourceAPI(falcon.API):
         except Exception:
             LOG.exception('Error occurred while adding the resource')
         LOG.debug(self._routes)
-
-    def add_resource(self, resource_name, namespace, driver_name,
-                     invoke_args=(), uri=None):
-        """Loads the resource driver, and adds it to the routes.
-
-        :param resource_name: the name of the resource.
-        :param namespace: the resource namespace (in setup.cfg).
-        :param driver_name: the driver name (in monasca_events_api.conf)
-        :param invoke_args: args to pass to the driver (a tuple)
-        :param uri: the uri to associate with the resource
-        """
-        resource_driver = init_driver(namespace, driver_name, invoke_args)
-        LOG.debug('%s dispatcher driver %s is loaded.' %
-                  (resource_name, driver_name))
-        self.add_route(uri, resource_driver)
-        LOG.debug('%s dispatcher driver has been added to the routes!' %
-                  (resource_name))

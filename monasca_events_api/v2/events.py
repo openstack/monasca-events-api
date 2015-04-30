@@ -18,29 +18,30 @@ import falcon
 
 import collections
 
+import simport
+
 from monasca_events_api.api import monasca_events_api_v2
 from monasca_events_api.common.messaging import exceptions as message_queue_exceptions
 from monasca_events_api.common.messaging.message_formats import events_transform_factory
 from monasca_events_api.common import resource_api
 from monasca_events_api.openstack.common import log
+from monasca_events_api.v2.common import helpers
+from monasca_events_api.v2.common import resource
 from monasca_events_api.v2.common.schemas import (
     events_request_body_schema as schemas_event)
-from monasca_events_api.v2.common.schemas import exceptions as schemas_exceptions
+from monasca_events_api.v2.common.schemas import (
+    exceptions as schemas_exceptions)
 from monasca_events_api.v2.common import utils
-from monasca_events_api.v2.reference import helpers
-from monasca_events_api.v2.reference import resource
 
 from oslo.config import cfg
+
 
 LOG = log.getLogger(__name__)
 
 
 class Events(monasca_events_api_v2.EventsV2API):
 
-    def __init__(self, global_conf):
-
-        super(Events, self).__init__(global_conf)
-
+    def __init__(self):
         self._region = cfg.CONF.region
         self._default_authorized_roles = (
             cfg.CONF.security.default_authorized_roles)
@@ -49,14 +50,14 @@ class Events(monasca_events_api_v2.EventsV2API):
         self._post_events_authorized_roles = (
             cfg.CONF.security.default_authorized_roles +
             cfg.CONF.security.agent_authorized_roles)
+
         self._event_transform = (
             events_transform_factory.create_events_transform())
+
         self._message_queue = (
-            resource_api.init_driver('monasca_events_api.messaging',
-                                     cfg.CONF.messaging.driver,
-                                     ['raw-events']))
-        self._events_repo = resource_api.init_driver(
-            'monasca_events_api.repositories', cfg.CONF.repositories.events_driver)
+            simport.load(cfg.CONF.messaging.driver)("raw-events"))
+        self._events_repo = (
+            simport.load(cfg.CONF.repositories.events)())
 
     def _validate_event(self, event):
         """Validates the event

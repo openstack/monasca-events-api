@@ -19,8 +19,8 @@ from wsgiref import simple_server
 
 from oslo.config import cfg
 import paste.deploy
-from stevedore import named
 
+import simport
 
 from monasca_events_api.common import resource_api
 from monasca_events_api.openstack.common import log
@@ -37,32 +37,20 @@ cfg.CONF.register_opts(OPTS)
 LOG = log.getLogger(__name__)
 
 
-def api_app(conf):
+def launch(conf, config_file="/etc/monasca/events_api.conf"):
     cfg.CONF(args=[],
              project='monasca_events_api',
-             default_config_files=["/etc/monasca/events_api.conf"])
+             default_config_files=[config_file])
     log_levels = (cfg.CONF.default_log_levels)
     cfg.set_defaults(log.log_opts, default_log_levels=log_levels)
     log.setup('monasca_events_api')
 
-    dispatcher_manager = named.NamedExtensionManager(
-        namespace=DISPATCHER_NAMESPACE,
-        names=cfg.CONF.dispatcher,
-        invoke_on_load=True,
-        invoke_args=[cfg.CONF])
-
-    if not list(dispatcher_manager):
-        LOG.error('Failed to load any dispatchers for %s' %
-                  DISPATCHER_NAMESPACE)
-        return None
-
     # Create the application
     app = resource_api.ResourceAPI()
 
-    # add each dispatcher to the application to serve requests offered by
-    # each dispatcher
-    for driver in dispatcher_manager:
-        app.add_route(None, driver.obj)
+    for dispatcher in cfg.CONF.dispatcher:
+        print "dispatcher: {}".format(dispatcher)
+        app.add_route(None, simport.load(dispatcher)())
 
     LOG.debug('Dispatcher drivers have been added to the routes!')
     return app
