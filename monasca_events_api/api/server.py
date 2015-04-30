@@ -49,7 +49,6 @@ def launch(conf, config_file="/etc/monasca/events_api.conf"):
     app = resource_api.ResourceAPI()
 
     for dispatcher in cfg.CONF.dispatcher:
-        print "dispatcher: {}".format(dispatcher)
         app.add_route(None, simport.load(dispatcher)())
 
     LOG.debug('Dispatcher drivers have been added to the routes!')
