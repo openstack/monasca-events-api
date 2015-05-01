@@ -31,6 +31,43 @@ def token():
     return ks_client.token
 
 
+def test_events_get():
+    headers = {
+        'X-Auth-User': 'mini-mon',
+        'X-Auth-Token': token(),
+        'X-Auth-Key': 'password',
+        'Accept': 'application/json',
+        'User-Agent': 'python-monascaclient',
+        'Content-Type': 'application/json'}
+
+    body = {}
+
+    response = requests.get(url="http://127.0.0.1:8080/v2.0/events",
+                            data=json.dumps(body),
+                            headers=headers)
+
+    json_data = json.loads(response.text)
+
+    event_id = json_data[3]['id']
+
+    assert response.status_code == 200
+    assert event_id == '16449e73-08ee-4c57-97d6-d820789f53c4'
+
+    response = requests.get(
+        url="http://127.0.0.1:8080/v2.0/events/{}".format(event_id),
+        data=json.dumps(body),
+        headers=headers)
+
+    json_data = json.loads(response.text)
+
+    event_id = json_data[0]['id']
+    generated = json_data[0]['generated']
+
+    assert response.status_code == 200
+    assert event_id == '16449e73-08ee-4c57-97d6-d820789f53c4'
+    assert generated == 1430416229.968381
+
+
 def test_stream_definition_post():
     headers = {
         'X-Auth-User': 'mini-mon',
@@ -100,3 +137,4 @@ def test_stream_definition_delete():
 test_stream_definition_post()
 test_stream_definition_get()
 test_stream_definition_delete()
+test_events_get()
