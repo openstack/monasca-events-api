@@ -21,7 +21,6 @@ import simplejson
 
 from monasca_events_api.common.repositories import constants
 from monasca_events_api.openstack.common import log
-from monasca_events_api.v2.common.schemas import exceptions as schemas_exceptions
 
 LOG = log.getLogger(__name__)
 
