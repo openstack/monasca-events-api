@@ -61,11 +61,10 @@ def test_events_get():
     json_data = json.loads(response.text)
 
     event_id = json_data[0]['id']
-    generated = json_data[0]['generated']
 
     assert response.status_code == 200
     assert event_id == '16449e73-08ee-4c57-97d6-d820789f53c4'
-    assert generated == 1430416229.968381
+    print("GET /events success")
 
 
 def test_stream_definition_post():
