@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from monasca_events_api.common import resource_api
 from monasca_events_api.openstack.common import log
 
 
@@ -24,15 +23,11 @@ class TransformsV2API(object):
         LOG.debug('initializing V2API!')
         self.global_conf = global_conf
 
-    @resource_api.Restify('/v2.0/events/transforms', method='post')
-    def do_post_transforms(self, req, res):
+    def on_post(self, req, res):
         res.status = '501 Not Implemented'
 
-    @resource_api.Restify('/v2.0/events/transforms', method='get')
-    def do_get_transforms(self, req, res):
+    def on_get(self, req, res):
         res.status = '501 Not Implemented'
 
-    @resource_api.Restify('/v2.0/events/transforms/{transform_id}',
-                          method='delete')
-    def do_delete_transforms(self, req, res, transform_id):
+    def on_delete(self, req, res, transform_id):
         res.status = '501 Not Implemented'

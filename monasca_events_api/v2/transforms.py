@@ -19,9 +19,8 @@ from oslo.config import cfg
 
 import simport
 
-from monasca_events_api.api import monasca_transforms_api_v2
+from monasca_events_api.api import transforms_api_v2
 from monasca_events_api.common.repositories import exceptions as repository_exceptions
-from monasca_events_api.common import resource_api
 from monasca_events_api.openstack.common import log
 from monasca_events_api.openstack.common import uuidutils
 from monasca_events_api.v2.common import helpers
@@ -33,13 +32,36 @@ from monasca_events_api.v2.common.schemas import (
 LOG = log.getLogger(__name__)
 
 
-class Transforms(monasca_transforms_api_v2.TransformsV2API):
+class Transforms(transforms_api_v2.TransformsV2API):
     def __init__(self):
         self._region = cfg.CONF.region
         self._default_authorized_roles = (
             cfg.CONF.security.default_authorized_roles)
         self._transforms_repo = (
             simport.load(cfg.CONF.repositories.transforms)())
+
+    def on_post(self, req, res):
+        helpers.validate_json_content_type(req)
+        helpers.validate_authorization(req, self._default_authorized_roles)
+        transform = helpers.read_http_resource(req)
+        self._validate_transform(transform)
+        transform_id = uuidutils.generate_uuid()
+        tenant_id = helpers.get_tenant_id(req)
+        self._create_transform(transform_id, tenant_id, transform)
+        res.body = self._create_transform_response(transform_id, transform)
+        res.status = falcon.HTTP_200
+
+    def on_get(self, req, res):
+        helpers.validate_authorization(req, self._default_authorized_roles)
+        tenant_id = helpers.get_tenant_id(req)
+        res.body = self._list_transforms(tenant_id)
+        res.status = falcon.HTTP_200
+
+    def on_delete(self, req, res, transform_id):
+        helpers.validate_authorization(req, self._default_authorized_roles)
+        tenant_id = helpers.get_tenant_id(req)
+        self._delete_transform(tenant_id, transform_id)
+        res.status = falcon.HTTP_204
 
     def _validate_transform(self, transform):
         """Validates the transform
@@ -53,7 +75,7 @@ class Transforms(monasca_transforms_api_v2.TransformsV2API):
             LOG.debug(ex)
             raise falcon.HTTPBadRequest('Bad request', ex.message)
 
-    def _create_transform(self, id, tenant_id, transform):
+    def _create_transform(self, transform_id, tenant_id, transform):
         """Store the transform using the repository.
 
         :param transform: A transform object.
@@ -64,7 +86,7 @@ class Transforms(monasca_transforms_api_v2.TransformsV2API):
             description = transform['description']
             specification = transform['specification']
             enabled = transform['enabled']
-            self._transforms_repo.create_transforms(id, tenant_id, name,
+            self._transforms_repo.create_transforms(transform_id, tenant_id, name,
                                                     description, specification,
                                                     enabled)
         except repository_exceptions.RepositoryException as ex:
@@ -72,12 +94,12 @@ class Transforms(monasca_transforms_api_v2.TransformsV2API):
             raise falcon.HTTPInternalServerError('Service unavailable',
                                                  ex.message)
 
-    def _create_transform_response(self, id, transform):
+    def _create_transform_response(self, transform_id, transform):
         name = transform['name']
         description = transform['description']
         specification = transform['specification']
         enabled = transform['enabled']
-        response = {'id': id, 'name': name, 'description': description,
+        response = {'id': transform_id, 'name': name, 'description': description,
                     'specification': specification, 'enabled': enabled}
         return json.dumps(response)
 
@@ -99,30 +121,3 @@ class Transforms(monasca_transforms_api_v2.TransformsV2API):
             LOG.error(ex)
             raise falcon.HTTPInternalServerError('Service unavailable',
                                                  ex.message)
-
-    @resource_api.Restify('/v2.0/transforms', method='post')
-    def do_post_transforms(self, req, res):
-        helpers.validate_json_content_type(req)
-        helpers.validate_authorization(req, self._default_authorized_roles)
-        transform = helpers.read_http_resource(req)
-        self._validate_transform(transform)
-        id = uuidutils.generate_uuid()
-        tenant_id = helpers.get_tenant_id(req)
-        self._create_transform(id, tenant_id, transform)
-        res.body = self._create_transform_response(id, transform)
-        res.status = falcon.HTTP_200
-
-    @resource_api.Restify('/v2.0/transforms', method='get')
-    def do_get_transforms(self, req, res):
-        helpers.validate_authorization(req, self._default_authorized_roles)
-        tenant_id = helpers.get_tenant_id(req)
-        res.body = self._list_transforms(tenant_id)
-        res.status = falcon.HTTP_200
-
-    @resource_api.Restify('/v2.0/transforms/{transform_id}',
-                          method='delete')
-    def do_delete_transforms(self, req, res, transform_id):
-        helpers.validate_authorization(req, self._default_authorized_roles)
-        tenant_id = helpers.get_tenant_id(req)
-        self._delete_transform(tenant_id, transform_id)
-        res.status = falcon.HTTP_204

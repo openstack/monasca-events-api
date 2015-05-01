@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from monasca_events_api.common import resource_api
 from monasca_events_api.openstack.common import log
 
 
@@ -24,14 +23,8 @@ class EventsV2API(object):
         LOG.debug('initializing V2API!')
         self.global_conf = global_conf
 
-    @resource_api.Restify('/v2.0/events', method='post')
-    def do_post_events(self, req, res):
+    def on_post(self, req, res):
         res.status = '501 Not Implemented'
 
-    @resource_api.Restify('/v2.0/events', method='get')
-    def do_get_events(self, req, res):
-        res.status = '501 Not Implemented'
-
-    @resource_api.Restify('/v2.0/events/{id}', method='get')
-    def do_get_event(self, req, res, id):
+    def on_get(self, req, res, events_id):
         res.status = '501 Not Implemented'

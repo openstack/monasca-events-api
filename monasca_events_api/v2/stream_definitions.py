@@ -23,7 +23,6 @@ import simport
 from monasca_events_api.api import stream_definitions_api_v2
 from monasca_events_api.common.messaging import exceptions as message_queue_exceptions
 from monasca_events_api.common.repositories import exceptions
-from monasca_events_api.common import resource_api
 from monasca_events_api.openstack.common import log
 from monasca_events_api.v2.common import helpers
 from monasca_events_api.v2.common import resource
@@ -59,8 +58,7 @@ class StreamDefinitions(stream_definitions_api_v2.StreamDefinitionsV2API):
             LOG.exception(ex)
             raise exceptions.RepositoryException(ex)
 
-    @resource_api.Restify('/v2.0/stream-definitions', method='post')
-    def do_post_stream_definitions(self, req, res):
+    def on_post(self, req, res):
         helpers.validate_authorization(req, self._default_authorized_roles)
 
         stream_definition = helpers.read_json_msg_body(req)
@@ -89,54 +87,48 @@ class StreamDefinitions(stream_definitions_api_v2.StreamDefinitionsV2API):
         res.body = helpers.dumpit_utf8(result)
         res.status = falcon.HTTP_201
 
-    @resource_api.Restify('/v2.0/stream-definitions/{id}', method='get')
-    def do_get_stream_definition(self, req, res, id):
+    def on_get(self, req, res, stream_id=None):
+        if stream_id:
+            helpers.validate_authorization(req, self._default_authorized_roles)
+            tenant_id = helpers.get_tenant_id(req)
 
+            result = self._stream_definition_show(tenant_id, stream_id)
+
+            helpers.add_links_to_resource(result, re.sub('/' + stream_id, '', req.uri))
+            res.body = helpers.dumpit_utf8(result)
+            res.status = falcon.HTTP_200
+        else:
+            helpers.validate_authorization(req, self._default_authorized_roles)
+            tenant_id = helpers.get_tenant_id(req)
+            name = helpers.get_query_name(req)
+            offset = helpers.normalize_offset(helpers.get_query_param(req,
+                                                                      'offset'))
+            limit = helpers.get_query_param(req, 'limit')
+            result = self._stream_definition_list(tenant_id, name,
+                                                  req.uri, offset, limit)
+
+            res.body = helpers.dumpit_utf8(result)
+            res.status = falcon.HTTP_200
+
+    def on_delete(self, req, res, stream_id):
         helpers.validate_authorization(req, self._default_authorized_roles)
         tenant_id = helpers.get_tenant_id(req)
-
-        result = self._stream_definition_show(tenant_id, id)
-
-        helpers.add_links_to_resource(result, re.sub('/' + id, '', req.uri))
-        res.body = helpers.dumpit_utf8(result)
-        res.status = falcon.HTTP_200
-
-    @resource_api.Restify('/v2.0/stream-definitions', method='get')
-    def do_get_stream_definitions(self, req, res):
-
-        helpers.validate_authorization(req, self._default_authorized_roles)
-        tenant_id = helpers.get_tenant_id(req)
-        name = helpers.get_query_name(req)
-        offset = helpers.normalize_offset(helpers.get_query_param(req,
-                                                                  'offset'))
-        limit = helpers.get_query_param(req, 'limit')
-        result = self._stream_definition_list(tenant_id, name,
-                                              req.uri, offset, limit)
-
-        res.body = helpers.dumpit_utf8(result)
-        res.status = falcon.HTTP_200
-
-    @resource_api.Restify(
-        '/v2.0/stream-definitions/{id}', method='delete')
-    def do_delete_stream_definitions(self, req, res, id):
-
-        helpers.validate_authorization(req, self._default_authorized_roles)
-        tenant_id = helpers.get_tenant_id(req)
-        self._stream_definition_delete(tenant_id, id)
+        self._stream_definition_delete(tenant_id, stream_id)
         res.status = falcon.HTTP_204
 
     @resource.resource_try_catch_block
-    def _stream_definition_delete(self, tenant_id, id):
+    def _stream_definition_delete(self, tenant_id, stream_id):
 
         stream_definition_row = (
-            self._stream_definitions_repo.get_stream_definition(tenant_id, id))
+            self._stream_definitions_repo.get_stream_definition(tenant_id,
+                                                                stream_id))
 
         if not self._stream_definitions_repo.delete_stream_definition(
-                tenant_id, id):
+                tenant_id, stream_id):
             raise falcon.HTTPNotFound
 
         self._send_stream_definition_deleted_event(
-            id, tenant_id, stream_definition_row['name'])
+            stream_id, tenant_id, stream_definition_row['name'])
 
     def _validate_stream_definition(self, stream_definition):
 
@@ -197,10 +189,11 @@ class StreamDefinitions(stream_definitions_api_v2.StreamDefinitionsV2API):
                 ex.message.encode('utf8'))
 
     @resource.resource_try_catch_block
-    def _stream_definition_show(self, tenant_id, id):
+    def _stream_definition_show(self, tenant_id, stream_id):
 
         stream_definition_row = (
-            self._stream_definitions_repo.get_stream_definition(tenant_id, id))
+            self._stream_definitions_repo.get_stream_definition(tenant_id,
+                                                                stream_id))
 
         return self._build_stream_definition_show_result(stream_definition_row)
 

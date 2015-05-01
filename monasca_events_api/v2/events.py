@@ -20,10 +20,9 @@ import collections
 
 import simport
 
-from monasca_events_api.api import monasca_events_api_v2
+from monasca_events_api.api import events_api_v2
 from monasca_events_api.common.messaging import exceptions as message_queue_exceptions
 from monasca_events_api.common.messaging.message_formats import events_transform_factory
-from monasca_events_api.common import resource_api
 from monasca_events_api.openstack.common import log
 from monasca_events_api.v2.common import helpers
 from monasca_events_api.v2.common import resource
@@ -39,7 +38,7 @@ from oslo.config import cfg
 LOG = log.getLogger(__name__)
 
 
-class Events(monasca_events_api_v2.EventsV2API):
+class Events(events_api_v2.EventsV2API):
 
     def __init__(self):
         self._region = cfg.CONF.region
@@ -58,6 +57,35 @@ class Events(monasca_events_api_v2.EventsV2API):
             simport.load(cfg.CONF.messaging.driver)("raw-events"))
         self._events_repo = (
             simport.load(cfg.CONF.repositories.events)())
+
+    def on_get(self, req, res, event_id=None):
+        if event_id:
+            helpers.validate_authorization(req, self._default_authorized_roles)
+            tenant_id = helpers.get_tenant_id(req)
+            result = self._list_event(tenant_id, event_id, req.uri)
+            res.body = helpers.dumpit_utf8(result)
+            res.status = falcon.HTTP_200
+        else:
+            helpers.validate_authorization(req, self._default_authorized_roles)
+            tenant_id = helpers.get_tenant_id(req)
+            offset = helpers.normalize_offset(helpers.get_query_param(req,
+                                                                      'offset'))
+            limit = helpers.get_query_param(req, 'limit')
+
+            result = self._list_events(tenant_id, req.uri, offset, limit)
+            res.body = helpers.dumpit_utf8(result)
+            res.status = falcon.HTTP_200
+
+    def on_post(self, req, res):
+        helpers.validate_json_content_type(req)
+        helpers.validate_authorization(req, self._post_events_authorized_roles)
+        event = helpers.read_http_resource(req)
+        self._validate_event(event)
+        tenant_id = helpers.get_tenant_id(req)
+        transformed_event = self._event_transform(event, tenant_id,
+                                                  self._region)
+        self._send_event(transformed_event)
+        res.status = falcon.HTTP_204
 
     def _validate_event(self, event):
         """Validates the event
@@ -128,35 +156,3 @@ class Events(monasca_events_api_v2.EventsV2API):
                     'generated': float(event_row['generated'])}
 
         return event_id, event_data
-
-    @resource_api.Restify('/v2.0/events', method='post')
-    def do_post_events(self, req, res):
-        helpers.validate_json_content_type(req)
-        helpers.validate_authorization(req, self._post_events_authorized_roles)
-        event = helpers.read_http_resource(req)
-        self._validate_event(event)
-        tenant_id = helpers.get_tenant_id(req)
-        transformed_event = self._event_transform(event, tenant_id,
-                                                  self._region)
-        self._send_event(transformed_event)
-        res.status = falcon.HTTP_204
-
-    @resource_api.Restify('/v2.0/events', method='get')
-    def do_get_events(self, req, res):
-        helpers.validate_authorization(req, self._default_authorized_roles)
-        tenant_id = helpers.get_tenant_id(req)
-        offset = helpers.normalize_offset(helpers.get_query_param(req,
-                                                                  'offset'))
-        limit = helpers.get_query_param(req, 'limit')
-
-        result = self._list_events(tenant_id, req.uri, offset, limit)
-        res.body = helpers.dumpit_utf8(result)
-        res.status = falcon.HTTP_200
-
-    @resource_api.Restify('/v2.0/events/{id}', method='get')
-    def do_get_event(self, req, res, id):
-        helpers.validate_authorization(req, self._default_authorized_roles)
-        tenant_id = helpers.get_tenant_id(req)
-        result = self._list_event(tenant_id, id, req.uri)
-        res.body = helpers.dumpit_utf8(result)
-        res.status = falcon.HTTP_200
