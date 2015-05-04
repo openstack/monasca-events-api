@@ -54,7 +54,6 @@ def test_events_get():
     event_id = json_data[3]['id']
 
     assert response.status_code == 200
-    assert event_id == '16449e73-08ee-4c57-97d6-d820789f53c4'
 
     response = requests.get(
         url=events_url + "/v2.0/events/{}".format(event_id),
@@ -63,10 +62,10 @@ def test_events_get():
 
     json_data = json.loads(response.text)
 
-    event_id = json_data[0]['id']
+    new_event_id = json_data[0]['id']
 
     assert response.status_code == 200
-    assert event_id == '16449e73-08ee-4c57-97d6-d820789f53c4'
+    assert event_id == new_event_id
     print("GET /events success")
 
 
