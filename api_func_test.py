@@ -51,7 +51,7 @@ def test_events_get():
 
     json_data = json.loads(response.text)
 
-    event_id = json_data[3]['id']
+    event_id = json_data[0]['id']
 
     assert response.status_code == 200
 
@@ -69,6 +69,25 @@ def test_events_get():
     print("GET /events success")
 
 
+def test_events_get_all():
+    headers = {
+        'X-Auth-User': 'mini-mon',
+        'X-Auth-Token': token(),
+        'X-Auth-Key': 'password',
+        'Accept': 'application/json',
+        'User-Agent': 'python-monascaclient',
+        'Content-Type': 'application/json'}
+
+    body = {}
+
+    response = requests.get(url=events_url + "/v2.0/events",
+                            data=json.dumps(body),
+                            headers=headers)
+
+    assert response.status_code == 200
+    print("GET /events success")
+
+
 def test_stream_definition_post():
     headers = {
         'X-Auth-User': 'mini-mon',
@@ -80,22 +99,29 @@ def test_stream_definition_post():
 
     body = {}
 
+    notif_resp = requests.get(
+        url="http://192.168.10.4:8080/v2.0/notification-methods",
+        data=json.dumps(body), headers=headers)
+    notif_dict = json.loads(notif_resp.text)
+    action_id = str(notif_dict['elements'][0]['id'])
+
     body = {"fire_criteria": [{"event_type": "compute.instance.create.start"},
                               {"event_type": "compute.instance.create.end"}],
             "description": "provisioning duration",
             "name": "panda",
             "group_by": ["instance_id"],
-            "expiration": 3,
+            "expiration": 3000,
             "select": [{"traits": {"tenant_id": "406904"},
                         "event_type": "compute.instance.create.*"}],
-            "fire_actions": ["ed469bb9-2b4a-457a-9926-9da9f6ac75da"],
-            "expire_actions": ["ed469bb9-2b4a-457a-9926-9da9f6ac75da"]}
+            "fire_actions": [action_id],
+            "expire_actions": [action_id]}
 
-    response = requests.post(url=events_url + "/v2.0/stream-definitions",
-                             data=json.dumps(body),
-                             headers=headers)
-    print(response.status_code)
-    print(response.text)
+    response = requests.post(
+        url=events_url + "/v2.0/stream-definitions",
+        data=json.dumps(body),
+        headers=headers)
+    assert response.status_code == 201
+    print("POST /stream-definitions success")
 
 
 def test_stream_definition_get():
@@ -109,11 +135,12 @@ def test_stream_definition_get():
 
     body = {}
 
-    response = requests.post(url=events_url + "/v2.0/stream-definitions",
-                             data=json.dumps(body),
-                             headers=headers)
-    print(response.status_code)
-    print(response.text)
+    response = requests.get(
+        url=events_url + "/v2.0/stream-definitions/",
+        data=json.dumps(body),
+        headers=headers)
+    assert response.status_code == 200
+    print("GET /stream-definitions success")
 
 
 def test_stream_definition_delete():
@@ -127,15 +154,21 @@ def test_stream_definition_delete():
 
     body = {}
 
-    response = requests.delete(
-        url=events_url + "/v2.0/stream-definitions/86177f0e-f811-4c42-a91a-1813251bf93f",
+    stream_resp = requests.get(
+        url=events_url + "/v2.0/stream-definitions/",
         data=json.dumps(body),
         headers=headers)
-
-    print(response.status_code)
-    print(response.text)
+    stream_dict = json.loads(stream_resp.text)
+    stream_id = str(stream_dict[0]['id'])
+    response = requests.delete(
+        url=events_url + "/v2.0/stream-definitions/{}".format(
+            stream_id),
+        data=json.dumps(body),
+        headers=headers)
+    assert response.status_code == 204
+    print("DELETE /stream-definitions success")
 
 test_stream_definition_post()
 test_stream_definition_get()
 test_stream_definition_delete()
-test_events_get()
+test_events_get_all()
