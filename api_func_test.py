@@ -20,6 +20,9 @@ import requests
 from monascaclient import ksclient
 
 
+events_url = "http://127.0.0.1:8082"
+
+
 def token():
     keystone = {
         'username': 'mini-mon',
@@ -42,7 +45,7 @@ def test_events_get():
 
     body = {}
 
-    response = requests.get(url="http://127.0.0.1:8080/v2.0/events",
+    response = requests.get(url=events_url + "/v2.0/events",
                             data=json.dumps(body),
                             headers=headers)
 
@@ -54,7 +57,7 @@ def test_events_get():
     assert event_id == '16449e73-08ee-4c57-97d6-d820789f53c4'
 
     response = requests.get(
-        url="http://127.0.0.1:8080/v2.0/events/{}".format(event_id),
+        url=events_url + "/v2.0/events/{}".format(event_id),
         data=json.dumps(body),
         headers=headers)
 
@@ -89,7 +92,7 @@ def test_stream_definition_post():
             "fire_actions": ["ed469bb9-2b4a-457a-9926-9da9f6ac75da"],
             "expire_actions": ["ed469bb9-2b4a-457a-9926-9da9f6ac75da"]}
 
-    response = requests.post(url="http://127.0.0.1:8080/v2.0/stream-definitions",
+    response = requests.post(url=events_url + "/v2.0/stream-definitions",
                              data=json.dumps(body),
                              headers=headers)
     print(response.status_code)
@@ -107,7 +110,7 @@ def test_stream_definition_get():
 
     body = {}
 
-    response = requests.post(url="http://127.0.0.1:8080/v2.0/stream-definitions/",
+    response = requests.post(url=events_url + "/v2.0/stream-definitions",
                              data=json.dumps(body),
                              headers=headers)
     print(response.status_code)
@@ -126,7 +129,7 @@ def test_stream_definition_delete():
     body = {}
 
     response = requests.delete(
-        url="http://127.0.0.1:8080/v2.0/stream-definitions/86177f0e-f811-4c42-a91a-1813251bf93f",
+        url=events_url + "/v2.0/stream-definitions/86177f0e-f811-4c42-a91a-1813251bf93f",
         data=json.dumps(body),
         headers=headers)
 
