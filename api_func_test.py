@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import json
+import time
 
 import requests
 
@@ -108,7 +109,7 @@ def test_stream_definition_post():
     body = {"fire_criteria": [{"event_type": "compute.instance.create.start"},
                               {"event_type": "compute.instance.create.end"}],
             "description": "provisioning duration",
-            "name": "panda",
+            "name": str(time.time()),
             "group_by": ["instance_id"],
             "expiration": 3000,
             "select": [{"traits": {"tenant_id": "406904"},
