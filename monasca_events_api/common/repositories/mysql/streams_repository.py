@@ -183,14 +183,23 @@ class StreamsRepository(mysql_repository.MySQLRepository,
             return
 
         for action in actions:
-            cursor.execute("select id from notification_method where id = %s",
-                           (action.encode('utf8'),))
+            cursor.execute(
+                "select id,type from notification_method where id = %s",
+                (action.encode('utf8'),))
             row = cursor.fetchone()
             if not row:
-                raise exceptions.RepositoryException(
+                raise exceptions.InvalidUpdateException(
                     "Non-existent notification id {} submitted for {} "
                     "notification action".format(action.encode('utf8'),
                                                  action_type.encode('utf8')))
+            else:
+                if row['type'] == 'PAGERDUTY':
+                    raise exceptions.InvalidUpdateException(
+                        "PAGERDUTY action not supported for "
+                        "notification id {} submitted for {} "
+                        "notification action".format(
+                            action.encode('utf8'),
+                            action_type.encode('utf8')))
             cursor.execute("""insert into stream_actions(
                                stream_definition_id,
                                action_type,
