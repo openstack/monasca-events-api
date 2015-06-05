@@ -100,6 +100,32 @@ class StreamsRepository(mysql_repository.MySQLRepository,
         return self._execute_query(query, parms)
 
     @mysql_repository.mysql_try_catch_block
+    def get_all_stream_definitions(self, offset=None, limit=None):
+
+        parms = []
+
+        select_clause = StreamsRepository.base_query
+
+        where_clause = " where deleted_at is NULL "
+
+        if offset is not None:
+            order_by_clause = " order by sd.id, sd.created_at "
+            where_clause += " and sd.id > %s "
+            parms.append(offset.encode('utf8'))
+            limit_clause = " limit %s "
+            if limit is not None:
+                parms.append(limit)
+            else:
+                parms.append(constants.PAGE_LIMIT)
+        else:
+            order_by_clause = " order by sd.created_at "
+            limit_clause = ""
+
+        query = select_clause + where_clause + order_by_clause + limit_clause
+
+        return self._execute_query(query, parms)
+
+    @mysql_repository.mysql_try_catch_block
     def delete_stream_definition(self, tenant_id, stream_definition_id):
         """Delete the stream definition.
 
