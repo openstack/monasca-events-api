@@ -34,15 +34,15 @@ def token():
     ks_client = ksclient.KSClient(**keystone)
     return ks_client.token
 
+headers = {
+    'X-Auth-User': 'mini-mon',
+    'X-Auth-Key': 'password',
+    'X-Auth-Token': token(),
+    'Accept': 'application/json',
+    'User-Agent': 'python-monascaclient',
+    'Content-Type': 'application/json'}
 
 def test_events_get():
-    headers = {
-        'X-Auth-User': 'mini-mon',
-        'X-Auth-Token': token(),
-        'X-Auth-Key': 'password',
-        'Accept': 'application/json',
-        'User-Agent': 'python-monascaclient',
-        'Content-Type': 'application/json'}
 
     body = {}
 
@@ -71,14 +71,7 @@ def test_events_get():
 
 
 def test_events_get_all():
-    headers = {
-        'X-Auth-User': 'mini-mon',
-        'X-Auth-Token': token(),
-        'X-Auth-Key': 'password',
-        'Accept': 'application/json',
-        'User-Agent': 'python-monascaclient',
-        'Content-Type': 'application/json'}
-
+    print("Test GET /events")
     body = {}
 
     response = requests.get(url=events_url + "/v2.0/events",
@@ -90,14 +83,7 @@ def test_events_get_all():
 
 
 def test_stream_definition_post():
-    headers = {
-        'X-Auth-User': 'mini-mon',
-        'X-Auth-Key': 'password',
-        'X-Auth-Token': token(),
-        'Accept': 'application/json',
-        'User-Agent': 'python-monascaclient',
-        'Content-Tye': 'application/json'}
-
+    print("Test POST /stream-definitions")
     body = {}
 
     notif_resp = requests.get(
@@ -126,14 +112,7 @@ def test_stream_definition_post():
 
 
 def test_stream_definition_get():
-    headers = {
-        'X-Auth-User': 'mini-mon',
-        'X-Auth-Key': 'password',
-        'X-Auth-Token': token(),
-        'Accept': 'application/json',
-        'User-Agent': 'python-monascaclient',
-        'Content-Type': 'application/json'}
-
+    print("Test GET /stream-definitions")
     body = {}
 
     response = requests.get(
@@ -145,14 +124,7 @@ def test_stream_definition_get():
 
 
 def test_stream_definition_delete():
-    headers = {
-        'X-Auth-User': 'mini-mon',
-        'X-Auth-Token': token(),
-        'X-Auth-Key': 'password',
-        'Accept': 'application/json',
-        'User-Agent': 'python-monascaclient',
-        'Content-Type': 'application/json'}
-
+    print("Test DELETE /stream-definitions")
     body = {}
 
     stream_resp = requests.get(
@@ -169,7 +141,51 @@ def test_stream_definition_delete():
     assert response.status_code == 204
     print("DELETE /stream-definitions success")
 
+
+def test_transforms():
+
+    print("Test POST /transforms")
+    body = {
+        "name": 'func test',
+        "description": 'a really short description of this thing',
+        "specification": 'some sorta specification'
+    }
+    response = requests.post(
+        url=events_url + "/v2.0/transforms",
+        data=json.dumps(body),
+        headers=headers)
+    assert response.status_code == 200
+    print("POST /transforms success")
+
+    print("Test GET /transforms")
+    body = {}
+
+    response = requests.get(
+        url=events_url + "/v2.0/transforms",
+        data=json.dumps(body),
+        headers=headers)
+    assert response.status_code == 200
+    print("GET /transforms success")
+
+    print("Test DELETE /transforms")
+    body = {}
+
+    response = requests.get(
+        url=events_url + "/v2.0/transforms",
+        data=json.dumps(body),
+        headers=headers)
+    transform_dict = json.loads(response.text)
+    transform_dict_id = transform_dict[0]['id']
+    response = requests.delete(
+        url=events_url + "/v2.0/transforms/{}".format(transform_dict_id),
+        data=json.dumps(body),
+        headers=headers)
+    assert response.status_code == 204
+    print("DELETE /transforms success")
+
 test_stream_definition_post()
 test_stream_definition_get()
 test_stream_definition_delete()
 test_events_get_all()
+test_transforms()
+

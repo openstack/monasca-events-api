@@ -12,70 +12,57 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import model
-import peewee
+import MySQLdb
+from oslo_utils import timeutils
 
 from monasca_events_api.common.repositories import exceptions
 from monasca_events_api.common.repositories import transforms_repository
+from monasca_events_api.common.repositories.mysql import mysql_repository
 from monasca_events_api.openstack.common import log
 
 
 LOG = log.getLogger(__name__)
 
 
-class Transform(model.Model):
-    id = peewee.TextField(36)
-    tenant_id = peewee.TextField(36)
-    name = peewee.TextField()
-    description = peewee.TextField()
-    specification = peewee.TextField()
-    enabled = peewee.BooleanField()
-    created_at = peewee.DateTimeField()
-    updated_at = peewee.DateTimeField()
-    deleted_at = peewee.DateTimeField()
 
-
-class TransformsRepository(transforms_repository.TransformsRepository):
+class TransformsRepository(mysql_repository.MySQLRepository,
+                           transforms_repository.TransformsRepository):
     def create_transforms(self, id, tenant_id, name, description,
                           specification, enabled):
-        try:
-            q = Transform.create(id=id, tenant_id=tenant_id, name=name,
-                                 description=description,
-                                 specification=specification, enabled=enabled)
-            q.save()
-        except Exception as ex:
-            LOG.exception(str(ex))
-            raise exceptions.RepositoryException(str(ex))
+        cnxn, cursor = self._get_cnxn_cursor_tuple()
+        with cnxn:
+            now = timeutils.utcnow()
+            try:
+                cursor.execute("""insert into event_transform_specification(
+                id,
+                tenant_id,
+                name,
+                description,
+                specification,
+                enabled,
+                created_at,
+                updated_at)
+                values (%s, %s, %s, %s, %s, %s, %s, %s)""",
+                               (id, tenant_id, name, description,
+                                specification, enabled, now, now))
+            except MySQLdb.IntegrityError, e:
+                code, msg = e
+                if code == 1062:
+                    MySQLdb.AlreadyExistsException(
+                        'Transform definition already '
+                        'exists for tenant_id: {}'.format(tenant_id))
+                else:
+                    raise e
 
     def list_transforms(self, tenant_id):
-        try:
-            q = Transform.select().where(Transform.tenant_id == tenant_id)
-            results = q.execute()
-
-            transforms = []
-            for result in results:
-                transform = {'id': result.id, 'name': result.name,
-                             'description': result.description,
-                             'specification': result.specification,
-                             'enabled': result.enabled}
-                transforms.append(transform)
-            return transforms
-        except Exception as ex:
-            LOG.exception(str(ex))
-            raise exceptions.RepositoryException(str(ex))
+        cnxn, cursor = self._get_cnxn_cursor_tuple()
+        with cnxn:
+            cursor.execute("""select * from event_transform_specification
+            where tenant_id = %s and deleted_at IS NULL""", [tenant_id])
+            return cursor.fetchall()
 
     def delete_transform(self, tenant_id, transform_id):
-        num_rows_deleted = 0
-
-        try:
-            q = Transform.delete().where((Transform.tenant_id == tenant_id) & (
-                Transform.id == transform_id))
-            num_rows_deleted = q.execute()
-        except Exception as ex:
-            LOG.exception(str(ex))
-            raise exceptions.RepositoryException(str(ex))
-
-        if num_rows_deleted < 1:
-            raise exceptions.DoesNotExistException()
-
-        return
+        cnxn, cursor = self._get_cnxn_cursor_tuple()
+        with cnxn:
+            cursor.execute("""delete from event_transform_specification
+            where id = %s and tenant_id = %s""", (transform_id, tenant_id))
