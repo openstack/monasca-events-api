@@ -13,6 +13,8 @@
 # under the License.
 
 import json
+import datetime
+from time import mktime
 
 import falcon
 from oslo.config import cfg
@@ -30,6 +32,15 @@ from monasca_events_api.v2.common.schemas import (
 
 
 LOG = log.getLogger(__name__)
+
+
+class MyEncoder(json.JSONEncoder):
+
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return int(mktime(obj.timetuple()))
+
+        return json.JSONEncoder.default(self, obj)
 
 
 class Transforms(transforms_api_v2.TransformsV2API):
@@ -85,7 +96,10 @@ class Transforms(transforms_api_v2.TransformsV2API):
             name = transform['name']
             description = transform['description']
             specification = transform['specification']
-            enabled = transform['enabled']
+            if 'enabled' in transform:
+                enabled = transform['enabled']
+            else:
+                enabled = False
             self._transforms_repo.create_transforms(transform_id, tenant_id, name,
                                                     description, specification,
                                                     enabled)
@@ -98,7 +112,10 @@ class Transforms(transforms_api_v2.TransformsV2API):
         name = transform['name']
         description = transform['description']
         specification = transform['specification']
-        enabled = transform['enabled']
+        if 'enabled' in transform:
+            enabled = transform['enabled']
+        else:
+            enabled = False
         response = {'id': transform_id, 'name': name, 'description': description,
                     'specification': specification, 'enabled': enabled}
         return json.dumps(response)
@@ -106,7 +123,7 @@ class Transforms(transforms_api_v2.TransformsV2API):
     def _list_transforms(self, tenant_id):
         try:
             transforms = self._transforms_repo.list_transforms(tenant_id)
-            return json.dumps(transforms)
+            return json.dumps(transforms, cls=MyEncoder)
         except repository_exceptions.RepositoryException as ex:
             LOG.error(ex)
             raise falcon.HTTPInternalServerError('Service unavailable',

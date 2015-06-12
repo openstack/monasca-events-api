@@ -30,7 +30,6 @@ transform_schema = {
         voluptuous.All(voluptuous.Any(str, unicode),
                        voluptuous.Length(max=64536))),
     voluptuous.Optional('enabled'): bool}
-
 request_body_schema = voluptuous.Schema(voluptuous.Any(transform_schema))
 
 
