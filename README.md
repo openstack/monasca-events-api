@@ -44,8 +44,7 @@ up the server by following the following instructions.
 To start the server, run the following command:
 
     Running the server in foreground mode
-    gunicorn -k eventlet --worker-connections=2000 --backlog=1000
-             --paste /etc/monasca/events_api.ini
+    gunicorn -k eventlet --worker-connections=2000 --backlog=1000 --paste /etc/monasca/events_api.ini
 
     Running the server as daemons
     gunicorn -k eventlet --worker-connections=2000 --backlog=1000
