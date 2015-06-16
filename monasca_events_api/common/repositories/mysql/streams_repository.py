@@ -73,7 +73,7 @@ class StreamsRepository(mysql_repository.MySQLRepository,
             raise exceptions.DoesNotExistException
 
     @mysql_repository.mysql_try_catch_block
-    def get_stream_definitions(self, tenant_id, name, offset, limit):
+    def get_stream_definitions(self, tenant_id, name, offset=None, limit=None):
 
         parms = [tenant_id]
 

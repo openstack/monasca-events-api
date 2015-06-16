@@ -21,8 +21,10 @@ import collections
 import simport
 
 from monasca_events_api.api import events_api_v2
-from monasca_events_api.common.messaging import exceptions as message_queue_exceptions
-from monasca_events_api.common.messaging.message_formats import events_transform_factory
+from monasca_events_api.common.messaging import exceptions \
+    as message_queue_exceptions
+from monasca_events_api.common.messaging.message_formats \
+    import events_transform_factory
 from monasca_events_api.openstack.common import log
 from monasca_events_api.v2.common import helpers
 from monasca_events_api.v2.common import resource
@@ -68,8 +70,9 @@ class Events(events_api_v2.EventsV2API):
         else:
             helpers.validate_authorization(req, self._default_authorized_roles)
             tenant_id = helpers.get_tenant_id(req)
-            offset = helpers.normalize_offset(helpers.get_query_param(req,
-                                                                      'offset'))
+            offset = helpers.normalize_offset(helpers.get_query_param(
+                req,
+                'offset'))
             limit = helpers.get_query_param(req, 'limit')
 
             result = self._list_events(tenant_id, req.uri, offset, limit)
@@ -82,6 +85,7 @@ class Events(events_api_v2.EventsV2API):
         event = helpers.read_http_resource(req)
         self._validate_event(event)
         tenant_id = helpers.get_tenant_id(req)
+        event['_tenant_id'] = tenant_id
         transformed_event = self._event_transform(event, tenant_id,
                                                   self._region)
         self._send_event(transformed_event)
@@ -128,14 +132,15 @@ class Events(events_api_v2.EventsV2API):
         result = collections.OrderedDict()
         for row in rows:
             event_id, event_data = self._build_event_data(row)
-
-            if event_id['id'] in result:
-                result[event_id['id']]['data'].update(event_data)
-            else:
-                result[event_id['id']] = {'id': event_id['id'],
-                                          'description': event_id['desc'],
-                                          'generated': event_id['generated'],
-                                          'data': event_data}
+            if '_tenant_id' not in event_data:
+                if event_id['id'] in result:
+                    result[event_id['id']]['data'].update(event_data)
+                else:
+                    result[event_id['id']] = {
+                        'id': event_id['id'],
+                        'description': event_id['desc'],
+                        'generated': event_id['generated'],
+                        'data': event_data}
         return result.values()
 
     def _build_event_data(self, event_row):

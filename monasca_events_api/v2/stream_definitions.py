@@ -21,14 +21,16 @@ from oslo.config import cfg
 import simport
 
 from monasca_events_api.api import stream_definitions_api_v2
-from monasca_events_api.common.messaging import exceptions as message_queue_exceptions
+from monasca_events_api.common.messaging import exceptions \
+    as message_queue_exceptions
 from monasca_events_api.common.repositories import exceptions
 from monasca_events_api.openstack.common import log
 from monasca_events_api.v2.common import helpers
 from monasca_events_api.v2.common import resource
-from monasca_events_api.v2.common.schemas import (stream_definition_request_body_schema
-                                                  as schema_streams)
-from monasca_events_api.v2.common.schemas import exceptions as schemas_exceptions
+from monasca_events_api.v2.common.schemas import \
+    (stream_definition_request_body_schema as schema_streams)
+from monasca_events_api.v2.common.schemas import exceptions \
+    as schemas_exceptions
 
 
 LOG = log.getLogger(__name__)
@@ -70,6 +72,12 @@ class StreamDefinitions(stream_definitions_api_v2.StreamDefinitionsV2API):
         description = get_query_stream_definition_description(
             stream_definition)
         select = stream_definition['select']
+        for s in select:
+            if 'traits' in s:
+                s['traits']['_tenant_id'] = tenant_id
+            else:
+                s['traits'] = {'_tenant_id': tenant_id}
+
         group_by = stream_definition['group_by']
         fire_criteria = stream_definition['fire_criteria']
         expiration = stream_definition['expiration']
@@ -94,15 +102,16 @@ class StreamDefinitions(stream_definitions_api_v2.StreamDefinitionsV2API):
 
             result = self._stream_definition_show(tenant_id, stream_id)
 
-            helpers.add_links_to_resource(result, re.sub('/' + stream_id, '', req.uri))
+            helpers.add_links_to_resource(
+                result, re.sub('/' + stream_id, '', req.uri))
             res.body = helpers.dumpit_utf8(result)
             res.status = falcon.HTTP_200
         else:
             helpers.validate_authorization(req, self._default_authorized_roles)
             tenant_id = helpers.get_tenant_id(req)
             name = helpers.get_query_name(req)
-            offset = helpers.normalize_offset(helpers.get_query_param(req,
-                                                                      'offset'))
+            offset = helpers.normalize_offset(
+                helpers.get_query_param(req, 'offset'))
             limit = helpers.get_query_param(req, 'limit')
             result = self._stream_definition_list(tenant_id, name,
                                                   req.uri, offset, limit)
@@ -130,6 +139,14 @@ class StreamDefinitions(stream_definitions_api_v2.StreamDefinitionsV2API):
         self._send_stream_definition_deleted_event(
             stream_id, tenant_id, stream_definition_row['name'])
 
+    def _check_invalid_trait(self, stream_definition):
+        select = stream_definition['select']
+        for s in select:
+            if 'traits' in s and '_tenant_id' in s['traits']:
+                raise falcon.HTTPBadRequest(
+                    'Bad request',
+                    '_tenant_id is a reserved word and invalid trait.')
+
     def _validate_stream_definition(self, stream_definition):
 
         try:
@@ -137,6 +154,7 @@ class StreamDefinitions(stream_definitions_api_v2.StreamDefinitionsV2API):
         except schemas_exceptions.ValidationException as ex:
             LOG.debug(ex)
             raise falcon.HTTPBadRequest('Bad request', ex.message)
+        self._check_invalid_trait(stream_definition)
 
     @resource.resource_try_catch_block
     def _stream_definition_create(self, tenant_id, name,
@@ -223,11 +241,18 @@ class StreamDefinitions(stream_definitions_api_v2.StreamDefinitionsV2API):
         expire_actions_list = get_comma_separated_str_as_list(
             stream_definition_row['expire_actions'])
 
+        selectlist = json.loads(stream_definition_row['select_by'])
+        for s in selectlist:
+            if '_tenant_id' in s['traits']:
+                del s['traits']['_tenant_id']
+                if not s['traits']:
+                    del s['traits']
+
         result = (
             {u'name': stream_definition_row['name'],
              u'id': stream_definition_row['id'],
              u'description': stream_definition_row['description'],
-             u'select': json.loads(stream_definition_row['select_by']),
+             u'select': selectlist,
              u'group_by': json.loads(stream_definition_row['group_by']),
              u'fire_criteria': json.loads(
                  stream_definition_row['fire_criteria']),
