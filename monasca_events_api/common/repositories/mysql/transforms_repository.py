@@ -33,7 +33,7 @@ class TransformsRepository(mysql_repository.MySQLRepository,
         with cnxn:
             now = timeutils.utcnow()
             try:
-                cursor.execute("""insert into event_transform_specification(
+                cursor.execute("""insert into event_transform(
                 id,
                 tenant_id,
                 name,
@@ -57,12 +57,12 @@ class TransformsRepository(mysql_repository.MySQLRepository,
     def list_transforms(self, tenant_id):
         cnxn, cursor = self._get_cnxn_cursor_tuple()
         with cnxn:
-            cursor.execute("""select * from event_transform_specification
+            cursor.execute("""select * from event_transform
             where tenant_id = %s and deleted_at IS NULL""", [tenant_id])
             return cursor.fetchall()
 
     def delete_transform(self, tenant_id, transform_id):
         cnxn, cursor = self._get_cnxn_cursor_tuple()
         with cnxn:
-            cursor.execute("""delete from event_transform_specification
+            cursor.execute("""delete from event_transform
             where id = %s and tenant_id = %s""", (transform_id, tenant_id))
