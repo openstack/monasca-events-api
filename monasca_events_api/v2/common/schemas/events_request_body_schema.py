@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import iso8601
 import voluptuous
 
 from monasca_events_api.openstack.common import log
@@ -19,15 +20,26 @@ from monasca_events_api.v2.common.schemas import exceptions
 
 LOG = log.getLogger(__name__)
 
-event_schema_request_body = voluptuous.Schema({
-    voluptuous.All(voluptuous.Any(str, unicode),
-                   voluptuous.Length(max=255)): voluptuous.All(
-        voluptuous.Any(None, str, unicode, bool, int, float, dict, []))})
+
+def DateValidator():
+    return lambda v: iso8601.parse_date(v)
+
+event_schema = {
+    voluptuous.Required('event_type'): voluptuous.All(
+        voluptuous.Any(str, unicode),
+        voluptuous.Length(max=255)),
+    voluptuous.Required('message_id'): voluptuous.All(
+        voluptuous.Any(str, unicode),
+        voluptuous.Length(max=50)),
+    voluptuous.Required('timestamp'): DateValidator()}
+
+request_body_schema = voluptuous.Schema(event_schema,
+                                        required=True, extra=True)
 
 
 def validate(body):
     try:
-        event_schema_request_body(body)
+        request_body_schema(body)
     except Exception as ex:
         LOG.debug(ex)
         raise exceptions.ValidationException(str(ex))

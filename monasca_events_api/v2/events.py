@@ -97,6 +97,9 @@ class Events(events_api_v2.EventsV2API):
         :param event: An event object.
         :raises falcon.HTTPBadRequest
         """
+        if '_tenant_id' in event:
+            raise falcon.HTTPBadRequest(
+                'Bad request', 'Reserved word _tenant_id may not be used.')
         try:
             schemas_event.validate(event)
         except schemas_exceptions.ValidationException as ex:
