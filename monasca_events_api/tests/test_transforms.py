@@ -18,8 +18,6 @@ from monasca_events_api.common.repositories.mysql.transforms_repository import T
 from monasca_events_api.v2.transforms import Transforms
 
 import mock
-from monasca_events_api.common.repositories.exceptions import AlreadyExistsException
-from monasca_events_api.openstack.common import uuidutils
 from monasca_events_api.common.repositories import exceptions as repository_exceptions
 
 import unittest
@@ -184,6 +182,10 @@ class Test_Transforms(unittest.TestCase):
         res.status = 0
         try:
             transObj.on_delete(self._generate_req(), res, transform_id)
+            self.assertFalse(
+                1,
+                msg="Validate Authorization failed, delete should fail but succeeded")
+
         except Exception as e:
             self.assertRaises(falcon.HTTPUnauthorized)
             self.assertEqual(e.status, '401 Unauthorized')
@@ -241,7 +243,6 @@ class Test_Transforms(unittest.TestCase):
         validateTransform.return_value = True
         readhttp.return_value = self._generate_req()
         helper_tenant_id.return_value = '0ab1ac0a-2867-402d'
-        transform_id = "0ab1ac0a"
         generateUUID.return_value = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
         transObj = TransformsSubClass()
@@ -357,7 +358,6 @@ class Test_Transforms(unittest.TestCase):
         createRes.return_value = returnTransform
         readhttp.return_value = self._generate_req()
         helper_tenant_id.return_value = '0ab1ac0a-2867-402d'
-        transform_id = "0ab1ac0a"
         generateUUID.return_value = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
         transObj = TransformsSubClass()
