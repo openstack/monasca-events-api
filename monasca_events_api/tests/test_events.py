@@ -328,3 +328,4 @@ class Test_first(unittest.TestCase):
         res.status = 0
         eventsObj.on_post(self._generate_req(), res)
         self.assertEqual(falcon.HTTP_204, res.status)
+        self.assertEqual({}, res.body)

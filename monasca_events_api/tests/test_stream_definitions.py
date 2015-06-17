@@ -245,16 +245,19 @@ class Test_StreamDefinitions(unittest.TestCase):
         getname.return_value = "Test"
         expire.return_value = "expire_actions"
         desc.return_value = "Stream_Description"
-        readjson.return_value = {u'name': "Test",
-                                 u'id': "1",
-                                 u'description': "Stream_Description",
-                                 u'select': "select",
-                                 u'group_by': "group_by",
-                                 u'fire_criteria': "fire_criteria",
-                                 u'expiration': "expiration",
-                                 u'fire_actions': "fire_actions",
-                                 u'expire_actions': "expire_actions",
-                                 u'actions_enabled': u'true'}
+        readjson.return_value = {
+            u'fire_criteria': [
+                {
+                    u'event_type': u'compute.instance.create.start'},
+                {
+                    u'event_type': u'compute.instance.create.end'}],
+            u'description': u'provisioning duration',
+            u'group_by': [u'instance_id'],
+            u'expiration': 90000,
+            u'select': [
+                {
+                    u'event_type': u'compute.instance.create.*'}],
+            u'name': u'buzz'}
 
         tenantid.return_value = '0ab1ac0a-2867-402d'
         streamvalid.return_value = True
@@ -296,7 +299,7 @@ class Test_StreamDefinitions(unittest.TestCase):
     @mock.patch(
         'monasca_events_api.common.messaging.kafka_publisher.KafkaPublisher')
     @mock.patch(
-        'monasca_events_api.common.repositories.mysql.streams_repository.StreamsRepository.create_stream_definition')
+        'monasca_events_api.v2.stream_definitions.StreamDefinitions._stream_definition_create')
     @mock.patch(
         'monasca_events_api.v2.stream_definitions.get_query_stream_definition_expire_actions')
     @mock.patch(
@@ -308,15 +311,12 @@ class Test_StreamDefinitions(unittest.TestCase):
     @mock.patch(
         'monasca_events_api.v2.stream_definitions.StreamDefinitions._validate_stream_definition')
     @mock.patch('monasca_events_api.v2.common.helpers.read_json_msg_body')
-    @mock.patch(
-        'monasca_events_api.v2.common.helpers.validate_json_content_type')
     @mock.patch('monasca_events_api.v2.common.helpers.get_tenant_id')
     @mock.patch('monasca_events_api.v2.common.helpers.validate_authorization')
     def test_on_post_pass(
             self,
             validate,
             tenantid,
-            json,
             readjson,
             streamvalid,
             getname,
@@ -333,18 +333,16 @@ class Test_StreamDefinitions(unittest.TestCase):
         addlink.return_value = "/v2.0/stream-definitions/{stream_id}"
         expire.return_value = "expire_actions"
         desc.return_value = "Stream_Description"
-        streamsrepo.return_value = True
-        readjson.return_value = {u'name': "Test",
-                                 u'id': "1",
-                                 u'description': "Stream_Description",
-                                 u'select': "select",
-                                 u'group_by': "group_by",
-                                 u'fire_criteria': "fire_criteria",
-                                 u'expiration': "expiration",
-                                 u'fire_actions': "fire_actions",
-                                 u'expire_actions': "expire_actions",
-                                 u'actions_enabled': u'true'}
+        responseObj = {u'fire_criteria': [{u'event_type': u'compute.instance.create.start'},
+                                          {u'event_type': u'compute.instance.create.end'}],
+                       u'description': u'provisioning duration',
+                       u'group_by': [u'instance_id'],
+                       u'expiration': 90000,
+                       u'select': [{u'event_type': u'compute.instance.create.*'}],
+                       u'name': u'buzz'}
 
+        readjson.return_value = responseObj
+        streamsrepo.return_value = responseObj
         tenantid.return_value = '0ab1ac0a-2867-402d'
         streamvalid.return_value = True
 
@@ -356,6 +354,7 @@ class Test_StreamDefinitions(unittest.TestCase):
         res.status = 0
         streamsObj.on_post(self._generate_req(), res)
         self.assertEqual(falcon.HTTP_201, res.status)
+        self.assertEqual(responseObj, json.loads(res.body))
 
     @mock.patch(
         'monasca_events_api.common.repositories.mysql.streams_repository.StreamsRepository.delete_stream_definition')
