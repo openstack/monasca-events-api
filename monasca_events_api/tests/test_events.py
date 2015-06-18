@@ -317,10 +317,15 @@ class Test_first(unittest.TestCase):
         """POST method success """
         json.return_value = None
         validate.return_value = True
-        http.return_value = True
+        requestObj = {
+            'event_type': 'compute.instance.create.start',
+            'timestamp': '2015-06-17T21:57:03.493436',
+            'message_id': '1f4609b5-f01d-11e4-81ac-20c9d0b84f8b',
+            '_tenant_id': '0ab1ac0a-2867-402d'
+        }
+        http.return_value = requestObj
         tenantid.return_value = '0ab1ac0a-2867-402d'
-        event.return_value = True
-
+        event.return_value = requestObj
         eventsObj = EventsSubClass()
         eventsObj._message_queue = kafka
         res = mock.MagicMock()
@@ -329,3 +334,70 @@ class Test_first(unittest.TestCase):
         eventsObj.on_post(self._generate_req(), res)
         self.assertEqual(falcon.HTTP_204, res.status)
         self.assertEqual({}, res.body)
+
+    @mock.patch(
+        'monasca_events_api.common.messaging.kafka_publisher.KafkaPublisher')
+    @mock.patch('monasca_events_api.v2.common.helpers.validate_authorization')
+    @mock.patch('monasca_events_api.v2.events.Events._validate_event')
+    @mock.patch('monasca_events_api.v2.common.helpers.read_http_resource')
+    @mock.patch(
+        'monasca_events_api.v2.common.helpers.validate_json_content_type')
+    @mock.patch('monasca_events_api.v2.common.helpers.get_tenant_id')
+    def test_on_post_pass_validate_event(self, tenantid, json, readHttpRes, event, validate, kafka):
+        """POST method passed due to validate event """
+
+        jsonObj = {
+            'event_type': 'compute.instance.create.start',
+            'timestamp': '2015-06-17T21:57:03.493436',
+            'message_id': '1f4609b5-f01d-11e4-81ac-20c9d0b84f8b',
+            '_tenant_id': '0ab1ac0a-2867-402d'
+        }
+
+        json.return_value = jsonObj
+        validate.return_value = True
+        readHttpRes.return_value = jsonObj
+        tenantid.return_value = '0ab1ac0a-2867-402d'
+        eventsObj = EventsSubClass()
+        eventsObj._message_queue = kafka
+        res = mock.MagicMock()
+        res.body = {}
+        res.status = 0
+        eventsObj.on_post(self._generate_req(), res)
+        self.assertEqual(falcon.HTTP_204, res.status)
+        self.assertEqual({}, res.body)
+
+    @mock.patch(
+        'monasca_events_api.common.messaging.kafka_publisher.KafkaPublisher')
+    @mock.patch('monasca_events_api.v2.common.helpers.validate_authorization')
+    @mock.patch('monasca_events_api.v2.common.helpers.read_http_resource')
+    @mock.patch(
+        'monasca_events_api.v2.common.helpers.validate_json_content_type')
+    @mock.patch('monasca_events_api.v2.common.helpers.get_tenant_id')
+    def test_on_post_fail_on_validate_event(self, tenantid, json, readHttpRes, validate, kafka):
+        """POST method failed due to validate event """
+
+        jsonObj = {
+            'event_type': 'compute.instance.create.start',
+            'timestamp': '2015-06-17T21:57:03.493436',
+            'message_id': '1f4609b5-f01d-11e4-81ac-20c9d0b84f8b',
+            '_tenant_id': '0ab1ac0a-2867-402d'
+        }
+
+        json.return_value = True
+        validate.return_value = True
+        readHttpRes.return_value = jsonObj
+        tenantid.return_value = '0ab1ac0a-2867-402d'
+        eventsObj = EventsSubClass()
+        eventsObj._message_queue = kafka
+        res = mock.MagicMock()
+        res.body = {}
+        res.status = 0
+        try:
+            eventsObj.on_post(self._generate_req(), res)
+            assertFalse(
+                1,
+                msg="Post Method should fail but succeeded, bad request sent")
+        except Exception as e:
+            self.assertRaises(falcon.HTTPBadRequest)
+            self.assertEqual(e.status, '400 Bad Request')
+            self.assertEqual({}, res.body)

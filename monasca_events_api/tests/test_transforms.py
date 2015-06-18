@@ -30,6 +30,7 @@ class TransformsSubClass(Transforms):
                                           'domainadmin', 'monasca-user']
         self._transforms_repo = None
         self._region = 'useast'
+        self._message_queue = None
 
 
 class Test_Transforms(unittest.TestCase):
@@ -191,6 +192,8 @@ class Test_Transforms(unittest.TestCase):
             self.assertEqual(e.status, '401 Unauthorized')
 
     @mock.patch(
+        'monasca_events_api.common.messaging.kafka_publisher.KafkaPublisher')
+    @mock.patch(
         'monasca_events_api.v2.transforms.Transforms._delete_transform')
     @mock.patch('monasca_events_api.v2.common.helpers.validate_authorization')
     @mock.patch('monasca_events_api.v2.common.helpers.get_tenant_id')
@@ -198,7 +201,8 @@ class Test_Transforms(unittest.TestCase):
             self,
             helper_tenant_id,
             helpers_validate,
-            deleteTransform):
+            deleteTransform,
+            kafka):
         """DELETE Method pass"""
         helpers_validate.return_value = True
         helper_tenant_id.return_value = '0ab1ac0a-2867-402d'
@@ -206,6 +210,7 @@ class Test_Transforms(unittest.TestCase):
         deleteTransform.return_value = True
 
         transObj = TransformsSubClass()
+        transObj._message_queue = kafka
         transObj._transforms_repo = TransformsRepository()
         res = mock.MagicMock()
         res.body = {}
@@ -317,12 +322,12 @@ class Test_Transforms(unittest.TestCase):
             self.assertEqual(e.status, '401 Unauthorized')
 
     @mock.patch(
+        'monasca_events_api.common.messaging.kafka_publisher.KafkaPublisher')
+    @mock.patch(
         'monasca_events_api.v2.transforms.Transforms._create_transform_response')
     @mock.patch(
         'monasca_events_api.common.repositories.mysql.mysql_repository.mdb')
     @mock.patch('monasca_events_api.openstack.common.uuidutils.generate_uuid')
-    @mock.patch(
-        'monasca_events_api.v2.transforms.Transforms._validate_transform')
     @mock.patch(
         'monasca_events_api.v2.common.helpers.validate_json_content_type')
     @mock.patch(
@@ -330,37 +335,31 @@ class Test_Transforms(unittest.TestCase):
     @mock.patch('monasca_events_api.v2.common.helpers.validate_authorization')
     @mock.patch('monasca_events_api.v2.common.helpers.get_tenant_id')
     @mock.patch('monasca_events_api.v2.common.helpers.read_http_resource')
-    def test_on_post_pass(
+    def test_on_post_pass_valid_request(
             self,
             readhttp,
             helper_tenant_id,
             helpers_validate,
             deleteTransform,
             validjson,
-            validateTransform,
             generateUUID,
             mysqlRepo,
-            createRes):
-        """Post Method pass"""
+            createRes,
+            kafka):
+        """Post Method pass due to valid request"""
         helpers_validate.return_value = True
         validjson.return_value = True
-        validateTransform.return_value = True
-        returnTransform = [{"id": "1",
-                            "name": "Trans1",
-                            "description": "Desc1",
-                            "specification": "AutoSpec1",
-                            "enabled": "True"},
-                           {"id": "2",
-                            "name": "Trans2",
-                            "description": "Desc2",
-                            "specification": "AutoSpec2",
-                            "enabled": "False"}]
+        returnTransform = {'name': 'Trans1',
+                           'description': 'Desc1',
+                           'specification': 'AutoSpec1'
+                           }
         createRes.return_value = returnTransform
-        readhttp.return_value = self._generate_req()
+        readhttp.return_value = returnTransform
         helper_tenant_id.return_value = '0ab1ac0a-2867-402d'
         generateUUID.return_value = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
         transObj = TransformsSubClass()
+        transObj._message_queue = kafka
         transObj._transforms_repo = TransformsRepository()
         res = mock.MagicMock()
         res.body = {}
@@ -368,3 +367,55 @@ class Test_Transforms(unittest.TestCase):
         transObj.on_post(self._generate_req(), res)
         self.assertEqual(falcon.HTTP_200, "200 OK")
         self.assertEqual(returnTransform, json.loads(json.dumps(res.body)))
+
+    @mock.patch(
+        'monasca_events_api.common.messaging.kafka_publisher.KafkaPublisher')
+    @mock.patch(
+        'monasca_events_api.v2.transforms.Transforms._create_transform_response')
+    @mock.patch(
+        'monasca_events_api.common.repositories.mysql.mysql_repository.mdb')
+    @mock.patch('monasca_events_api.openstack.common.uuidutils.generate_uuid')
+    @mock.patch(
+        'monasca_events_api.v2.common.helpers.validate_json_content_type')
+    @mock.patch(
+        'monasca_events_api.v2.transforms.Transforms._delete_transform')
+    @mock.patch('monasca_events_api.v2.common.helpers.validate_authorization')
+    @mock.patch('monasca_events_api.v2.common.helpers.get_tenant_id')
+    @mock.patch('monasca_events_api.v2.common.helpers.read_http_resource')
+    def test_on_post_pass_fail_invalid_request(
+            self,
+            readhttp,
+            helper_tenant_id,
+            helpers_validate,
+            deleteTransform,
+            validjson,
+            generateUUID,
+            mysqlRepo,
+            createRes,
+            kafka):
+        """Post Method fails due to invalid request"""
+        helpers_validate.return_value = True
+        validjson.return_value = True
+        returnTransform = {
+            'description': 'Desc1',
+            'specification': 'AutoSpec1'
+        }
+        createRes.return_value = returnTransform
+        readhttp.return_value = returnTransform
+        helper_tenant_id.return_value = '0ab1ac0a-2867-402d'
+        generateUUID.return_value = "067e6162-3b6f-4ae2-a171-2470b63dff00"
+
+        transObj = TransformsSubClass()
+        transObj._message_queue = kafka
+        transObj._transforms_repo = TransformsRepository()
+        res = mock.MagicMock()
+        res.body = {}
+        res.status = 0
+        try:
+            transObj.on_post(self._generate_req(), res)
+            self.assertFalse(
+                1,
+                msg="Validate transform failed, POST should fail but succeeded")
+        except Exception as e:
+            self.assertRaises(falcon.HTTPBadRequest)
+            self.assertEqual(e.status, '400 Bad Request')
