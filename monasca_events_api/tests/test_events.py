@@ -317,6 +317,7 @@ class Test_first(unittest.TestCase):
         """POST method success """
         json.return_value = None
         validate.return_value = True
+
         requestObj = {
             'event_type': 'compute.instance.create.start',
             'timestamp': '2015-06-17T21:57:03.493436',
@@ -357,6 +358,7 @@ class Test_first(unittest.TestCase):
         validate.return_value = True
         readHttpRes.return_value = jsonObj
         tenantid.return_value = '0ab1ac0a-2867-402d'
+
         eventsObj = EventsSubClass()
         eventsObj._message_queue = kafka
         res = mock.MagicMock()
