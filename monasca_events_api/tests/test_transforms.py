@@ -337,56 +337,6 @@ class Test_Transforms(unittest.TestCase):
     @mock.patch('monasca_events_api.v2.common.helpers.validate_authorization')
     @mock.patch('monasca_events_api.v2.common.helpers.get_tenant_id')
     @mock.patch('monasca_events_api.v2.common.helpers.read_http_resource')
-    def test_on_post_pass(
-            self,
-            readhttp,
-            helper_tenant_id,
-            helpers_validate,
-            deleteTransform,
-            validjson,
-            validateTransform,
-            generateUUID,
-            mysqlRepo,
-            createRes,
-            kafka):
-        """Post Method pass"""
-        helpers_validate.return_value = True
-        validjson.return_value = True
-        validateTransform.return_value = True
-        returnTransform = {"name": "Trans1",
-                           "description": "Desc1",
-                           "specification": "AutoSpec1"}
-        createRes.return_value = returnTransform
-        readhttp.return_value = returnTransform
-        helper_tenant_id.return_value = '0ab1ac0a-2867-402d'
-        generateUUID.return_value = "067e6162-3b6f-4ae2-a171-2470b63dff00"
-
-        transObj = TransformsSubClass()
-        transObj._transforms_repo = TransformsRepository()
-        transObj._message_queue = kafka
-        res = mock.MagicMock()
-        res.body = {}
-        res.status = 0
-        transObj.on_post(self._generate_req(), res)
-        self.assertEqual(falcon.HTTP_200, "200 OK")
-        self.assertEqual(returnTransform, json.loads(json.dumps(res.body)))
-
-    @mock.patch(
-        'monasca_events_api.common.messaging.kafka_publisher.KafkaPublisher')
-    @mock.patch(
-        'monasca_events_api.v2.transforms.Transforms._create_transform_response')
-    @mock.patch(
-        'monasca_events_api.common.repositories.mysql.mysql_repository.mdb')
-    @mock.patch('monasca_events_api.openstack.common.uuidutils.generate_uuid')
-    @mock.patch(
-        'monasca_events_api.v2.transforms.Transforms._validate_transform')
-    @mock.patch(
-        'monasca_events_api.v2.common.helpers.validate_json_content_type')
-    @mock.patch(
-        'monasca_events_api.v2.transforms.Transforms._delete_transform')
-    @mock.patch('monasca_events_api.v2.common.helpers.validate_authorization')
-    @mock.patch('monasca_events_api.v2.common.helpers.get_tenant_id')
-    @mock.patch('monasca_events_api.v2.common.helpers.read_http_resource')
     def test_on_post_pass_valid_request(
             self,
             readhttp,
@@ -408,16 +358,10 @@ class Test_Transforms(unittest.TestCase):
                            }
         createRes.return_value = returnTransform
         readhttp.return_value = returnTransform
-
-        """Post Method pass"""
-        helpers_validate.return_value = True
-        validjson.return_value = True
-        validateTransform.return_value = True
         helper_tenant_id.return_value = '0ab1ac0a-2867-402d'
         generateUUID.return_value = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
         transObj = TransformsSubClass()
-
         transObj._message_queue = kafka
         transObj._transforms_repo = TransformsRepository()
         res = mock.MagicMock()
