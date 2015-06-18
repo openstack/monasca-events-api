@@ -376,7 +376,6 @@ class Test_StreamDefinitions(unittest.TestCase):
                        u'description': u'provisioning duration',
                        u'group_by': [u'instance_id'],
                        u'expiration': 90000,
-                       u'select': [{u'event_type': u'compute.instance.create.*'}],
                        u'name': u'buzz'}
         tenantid.return_value = '0ab1ac0a-2867-402d'
         readjson.return_value = responseObj
@@ -390,8 +389,8 @@ class Test_StreamDefinitions(unittest.TestCase):
             streamsObj.on_post(self._generate_req(), res)
             self.assertFalse(1, msg="Bad Request Sent, should fail but passed")
         except Exception as e:
-            self.assertRaises(falcon.HTTPInternalServerError)
-            self.assertEqual(e.status, '500 Internal Server Error')
+            self.assertRaises(falcon.HTTPBadRequest)
+            self.assertEqual(e.status, '400 Bad Request')
 
     @mock.patch('monasca_events_api.v2.common.helpers.read_json_msg_body')
     @mock.patch('monasca_events_api.v2.common.helpers.validate_authorization')

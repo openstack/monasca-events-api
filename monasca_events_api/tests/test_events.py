@@ -346,19 +346,16 @@ class Test_first(unittest.TestCase):
     @mock.patch('monasca_events_api.v2.common.helpers.get_tenant_id')
     def test_on_post_pass_validate_event(self, tenantid, json, readHttpRes, event, validate, kafka):
         """POST method passed due to validate event """
-
         jsonObj = {
             'event_type': 'compute.instance.create.start',
             'timestamp': '2015-06-17T21:57:03.493436',
-            'message_id': '1f4609b5-f01d-11e4-81ac-20c9d0b84f8b',
-            '_tenant_id': '0ab1ac0a-2867-402d'
+            'message_id': '1f4609b5-f01d-11e4-81ac-20c9d0b84f8b'
         }
 
-        json.return_value = jsonObj
+        json.return_value = True
         validate.return_value = True
         readHttpRes.return_value = jsonObj
         tenantid.return_value = '0ab1ac0a-2867-402d'
-
         eventsObj = EventsSubClass()
         eventsObj._message_queue = kafka
         res = mock.MagicMock()
@@ -377,7 +374,7 @@ class Test_first(unittest.TestCase):
     @mock.patch('monasca_events_api.v2.common.helpers.get_tenant_id')
     def test_on_post_fail_on_validate_event(self, tenantid, json, readHttpRes, validate, kafka):
         """POST method failed due to validate event """
-
+        """_tenant_id is a reserved word that cannot be used"""
         jsonObj = {
             'event_type': 'compute.instance.create.start',
             'timestamp': '2015-06-17T21:57:03.493436',
