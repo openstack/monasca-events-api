@@ -325,7 +325,6 @@ class Test_StreamDefinitions(unittest.TestCase):
         readjson.return_value = responseObj
         streamsrepo.return_value = responseObj
         tenantid.return_value = '0ab1ac0a-2867-402d'
-        streamvalid.return_value = True
 
         streamsObj = StreamDefinitionsSubClass()
         streamsObj._stream_definitions_repo = StreamsRepository()
