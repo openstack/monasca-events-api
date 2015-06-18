@@ -308,12 +308,11 @@ class Test_first(unittest.TestCase):
     @mock.patch(
         'monasca_events_api.common.messaging.kafka_publisher.KafkaPublisher')
     @mock.patch('monasca_events_api.v2.common.helpers.validate_authorization')
-    @mock.patch('monasca_events_api.v2.events.Events._validate_event')
     @mock.patch('monasca_events_api.v2.common.helpers.read_http_resource')
     @mock.patch(
         'monasca_events_api.v2.common.helpers.validate_json_content_type')
     @mock.patch('monasca_events_api.v2.common.helpers.get_tenant_id')
-    def test_on_post_pass_validate_event(self, tenantid, json, readHttpRes, event, validate, kafka):
+    def test_on_post_pass_validate_event(self, tenantid, json, readHttpRes, validate, kafka):
         """POST method passed due to validate event """
         jsonObj = {
             'event_type': 'compute.instance.create.start',
