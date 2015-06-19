@@ -83,7 +83,6 @@ class Events(events_api_v2.EventsV2API):
 
         self._validate_event(event)
         tenant_id = helpers.get_tenant_id(req)
-        # event['_tenant_id'] = tenant_id
         transformed_event = self._event_transform(event, tenant_id,
                                                   self._region)
         self._send_event(transformed_event)
