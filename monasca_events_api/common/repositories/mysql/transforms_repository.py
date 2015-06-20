@@ -13,16 +13,13 @@
 # under the License.
 
 import MySQLdb
+from oslo_log import log
 from oslo_utils import timeutils
 
-from monasca_events_api.common.repositories import exceptions
 from monasca_events_api.common.repositories import transforms_repository
 from monasca_events_api.common.repositories.mysql import mysql_repository
-from monasca_events_api.openstack.common import log
-
 
 LOG = log.getLogger(__name__)
-
 
 
 class TransformsRepository(mysql_repository.MySQLRepository,

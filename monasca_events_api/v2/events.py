@@ -12,12 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import collections
 import json
 
 import falcon
-
-import collections
-
+from oslo_config import cfg
+from oslo_log import log
 import simport
 
 from monasca_events_api.api import events_api_v2
@@ -25,7 +25,6 @@ from monasca_events_api.common.messaging import exceptions \
     as message_queue_exceptions
 from monasca_events_api.common.messaging.message_formats \
     import events_transform_factory
-from monasca_events_api.openstack.common import log
 from monasca_events_api.v2.common import helpers
 from monasca_events_api.v2.common import resource
 from monasca_events_api.v2.common.schemas import (
@@ -33,8 +32,6 @@ from monasca_events_api.v2.common.schemas import (
 from monasca_events_api.v2.common.schemas import (
     exceptions as schemas_exceptions)
 from monasca_events_api.v2.common import utils
-
-from oslo.config import cfg
 
 
 LOG = log.getLogger(__name__)

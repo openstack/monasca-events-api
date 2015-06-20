@@ -11,16 +11,17 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 import time
 
 from kafka import client
 from kafka import common
 from kafka import producer
-from oslo.config import cfg
+from oslo_config import cfg
+from oslo_log import log
 
 from monasca_events_api.common.messaging import exceptions
 from monasca_events_api.common.messaging import publisher
-from monasca_events_api.openstack.common import log
 
 
 LOG = log.getLogger(__name__)

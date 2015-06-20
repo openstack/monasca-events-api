@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo.config import cfg
+from oslo_config import cfg
 
 import monasca_events_api.common.messaging.message_formats.cadf.metrics as cadf_metrics
 import monasca_events_api.common.messaging.message_formats.identity.metrics as id_metrics

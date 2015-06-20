@@ -16,9 +16,9 @@
 
 import uuid
 
-from oslo.utils import timeutils
+from oslo_log import log
+from oslo_utils import timeutils
 
-from monasca_events_api.openstack.common import log
 
 LOG = log.getLogger(__name__)
 
