@@ -17,9 +17,9 @@ import json
 import time
 
 import requests
+import yaml
 
 from monascaclient import ksclient
-
 
 events_url = "http://192.168.10.4:8082"
 
@@ -41,6 +41,7 @@ headers = {
     'Accept': 'application/json',
     'User-Agent': 'python-monascaclient',
     'Content-Type': 'application/json'}
+
 
 def test_events_get():
 
@@ -142,13 +143,18 @@ def test_stream_definition_delete():
     print("DELETE /stream-definitions success")
 
 
-def test_transforms(yml):
+def test_transforms():
 
     print("Test POST /transforms")
+
+    # Open example yaml file and post to DB
+    fh = open('transform_definitions.yaml', 'r')
+    specification_data = yaml.load(fh)
+
     body = {
         "name": 'func test',
-        "description": 'a yaml file that echos test',
-        "specification": yml
+        "description": 'an example definition',
+        "specification": str(specification_data)
     }
     response = requests.post(
         url=events_url + "/v2.0/transforms",
@@ -187,14 +193,4 @@ test_stream_definition_post()
 test_stream_definition_get()
 test_stream_definition_delete()
 test_events_get_all()
-yml = """
----
-- host: mini-mon
-  vars:
-    test_var: "{{mini-mon}}"
-  tasks:
-    - name: Test Task
-      command: echo test
-"""
-test_transforms(yml)
-
+test_transforms()
