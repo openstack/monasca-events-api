@@ -12,17 +12,24 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
+
 from oslo_utils import timeutils
 
 
-def transform(event, tenant_id, region):
-    transformed_event = dict(
-        event=event,
-        meta=dict(
-            tenantId=tenant_id,
-            region=region
-        ),
-        creation_time=timeutils.utcnow_ts()
-    )
+def transform(events, tenant_id, region):
+    event_template = {'event': {},
+                      '_tenant_id': tenant_id,
+                      'meta': {'tenantId': tenant_id, 'region': region},
+                      'creation_time': timeutils.utcnow_ts()}
 
-    return transformed_event
+    if isinstance(events, list):
+        transformed_events = []
+        for event in events:
+            event_template['event'] = event
+            transformed_events.append(json.dumps(event_template))
+        return transformed_events
+    else:
+        transformed_event = event_template['event']
+        transformed_event['event'] = events
+        return [json.dumps(transformed_event)]

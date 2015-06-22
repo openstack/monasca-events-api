@@ -12,8 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
-
 import falcon
 
 import collections
@@ -32,7 +30,6 @@ from monasca_events_api.v2.common.schemas import (
     events_request_body_schema as schemas_event)
 from monasca_events_api.v2.common.schemas import (
     exceptions as schemas_exceptions)
-from monasca_events_api.v2.common import utils
 
 from oslo.config import cfg
 
@@ -83,9 +80,9 @@ class Events(events_api_v2.EventsV2API):
         helpers.validate_json_content_type(req)
         helpers.validate_authorization(req, self._post_events_authorized_roles)
         event = helpers.read_http_resource(req)
+
         self._validate_event(event)
         tenant_id = helpers.get_tenant_id(req)
-        event['_tenant_id'] = tenant_id
         transformed_event = self._event_transform(event, tenant_id,
                                                   self._region)
         self._send_event(transformed_event)
@@ -106,16 +103,14 @@ class Events(events_api_v2.EventsV2API):
             LOG.debug(ex)
             raise falcon.HTTPBadRequest('Bad request', ex.message)
 
-    def _send_event(self, event):
+    def _send_event(self, events):
         """Send the event using the message queue.
 
-        :param metrics: An event object.
+        :param metrics: A series of event objects.
         :raises: falcon.HTTPServiceUnavailable
         """
         try:
-            str_msg = json.dumps(event, default=utils.date_handler,
-                                 ensure_ascii=False).encode('utf8')
-            self._message_queue.send_message(str_msg)
+            self._message_queue.send_message_batch(events)
         except message_queue_exceptions.MessageQueueException as ex:
             LOG.exception(ex)
             raise falcon.HTTPInternalServerError('Service unavailable',
