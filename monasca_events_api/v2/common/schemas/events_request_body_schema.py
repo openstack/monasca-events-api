@@ -34,8 +34,11 @@ event_schema = {
         voluptuous.Length(max=50)),
     voluptuous.Required('timestamp'): DateValidator()}
 
-request_body_schema = voluptuous.Schema(event_schema,
-                                        required=True, extra=True)
+event_schema = voluptuous.Schema(event_schema,
+                                 required=True, extra=True)
+
+request_body_schema = voluptuous.Schema(
+    voluptuous.Any(event_schema, [event_schema]))
 
 
 def validate(body):
