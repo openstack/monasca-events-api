@@ -15,7 +15,6 @@
 import MySQLdb
 from oslo_utils import timeutils
 
-from monasca_events_api.common.repositories import exceptions
 from monasca_events_api.common.repositories import transforms_repository
 from monasca_events_api.common.repositories.mysql import mysql_repository
 from monasca_events_api.openstack.common import log
@@ -59,6 +58,14 @@ class TransformsRepository(mysql_repository.MySQLRepository,
         with cnxn:
             cursor.execute("""select * from event_transform
             where tenant_id = %s and deleted_at IS NULL""", [tenant_id])
+            return cursor.fetchall()
+
+    def list_transform(self, tenant_id, transform_id):
+        cnxn, cursor = self._get_cnxn_cursor_tuple()
+        with cnxn:
+            cursor.execute("""select * from event_transform
+            where tenant_id = %s and id = %s and deleted_at IS NULL""",
+                           (tenant_id, transform_id))
             return cursor.fetchall()
 
     def delete_transform(self, tenant_id, transform_id):
