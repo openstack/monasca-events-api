@@ -21,7 +21,7 @@ import requests
 from monascaclient import ksclient
 
 
-events_url = "http://127.0.0.1:8082"
+events_url = "http://192.168.10.4:8082"
 
 
 def token():
@@ -142,13 +142,13 @@ def test_stream_definition_delete():
     print("DELETE /stream-definitions success")
 
 
-def test_transforms():
+def test_transforms(yml):
 
     print("Test POST /transforms")
     body = {
         "name": 'func test',
-        "description": 'a really short description of this thing',
-        "specification": 'some sorta specification'
+        "description": 'a yaml file that echos test',
+        "specification": yml
     }
     response = requests.post(
         url=events_url + "/v2.0/transforms",
@@ -187,5 +187,14 @@ test_stream_definition_post()
 test_stream_definition_get()
 test_stream_definition_delete()
 test_events_get_all()
-test_transforms()
+yml = """
+---
+- host: mini-mon
+  vars:
+    test_var: "{{mini-mon}}"
+  tasks:
+    - name: Test Task
+      command: echo test
+"""
+test_transforms(yml)
 
