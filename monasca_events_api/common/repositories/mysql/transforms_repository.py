@@ -16,8 +16,8 @@ import MySQLdb
 from oslo_log import log
 from oslo_utils import timeutils
 
-from monasca_events_api.common.repositories import transforms_repository
 from monasca_events_api.common.repositories.mysql import mysql_repository
+from monasca_events_api.common.repositories import transforms_repository
 
 LOG = log.getLogger(__name__)
 
@@ -42,7 +42,7 @@ class TransformsRepository(mysql_repository.MySQLRepository,
                 values (%s, %s, %s, %s, %s, %s, %s, %s)""",
                                (id, tenant_id, name, description,
                                 specification, enabled, now, now))
-            except MySQLdb.IntegrityError, e:
+            except MySQLdb.IntegrityError as e:
                 code, msg = e
                 if code == 1062:
                     MySQLdb.AlreadyExistsException(

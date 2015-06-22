@@ -26,5 +26,5 @@ db = peewee.MySQLDatabase(cfg.CONF.mysql.database_name,
 
 
 class Model(peewee.Model):
-    class Meta:
+    class Meta(object):
         database = db

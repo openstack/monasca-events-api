@@ -42,6 +42,7 @@ headers = {
     'User-Agent': 'python-monascaclient',
     'Content-Type': 'application/json'}
 
+
 def test_events_get():
 
     body = {}
@@ -188,4 +189,3 @@ test_stream_definition_get()
 test_stream_definition_delete()
 test_events_get_all()
 test_transforms()
-
