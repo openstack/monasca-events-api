@@ -12,9 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
+import ast
 import datetime
+import json
 from time import mktime
+import yaml
 
 import falcon
 from oslo.config import cfg
@@ -119,7 +121,7 @@ class Transforms(transforms_api_v2.TransformsV2API):
         try:
             name = transform['name']
             description = transform['description']
-            specification = transform['specification']
+            specification = str(yaml.load(transform['specification']))
             if 'enabled' in transform:
                 enabled = transform['enabled']
             else:
@@ -147,6 +149,9 @@ class Transforms(transforms_api_v2.TransformsV2API):
     def _list_transforms(self, tenant_id):
         try:
             transforms = self._transforms_repo.list_transforms(tenant_id)
+            for transform in transforms:
+                transform['specification'] = yaml.safe_dump(
+                    ast.literal_eval(transform['specification']))
             return json.dumps(transforms, cls=MyEncoder)
         except repository_exceptions.RepositoryException as ex:
             LOG.error(ex)
