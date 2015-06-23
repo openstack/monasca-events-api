@@ -53,17 +53,30 @@ class TransformsRepository(mysql_repository.MySQLRepository,
                 else:
                     raise e
 
-    def list_transforms(self, tenant_id, limit=None):
+    def list_transforms(self, tenant_id, limit=None, offset=None):
         cnxn, cursor = self._get_cnxn_cursor_tuple()
         with cnxn:
             if limit:
+                if offset:
+                    query = ("""select * from event_transform
+                        where tenant_id = "{}" and id > "{}" and deleted_at
+                        IS NULL order by id limit {}"""
+                             .format(tenant_id, offset, limit))
+                else:
+                    query = ("""select * from event_transform
+                        where tenant_id = "{}" and deleted_at
+                        IS NULL order by id limit {}"""
+                             .format(tenant_id, limit))
+                cursor.execute(query)
+            elif offset:
                 query = ("""select * from event_transform
-                    where tenant_id = "{}" and deleted_at IS NULL limit {}"""
-                         .format(tenant_id, limit))
+                        where tenant_id = "{}" and id > "{}" and deleted_at
+                        IS NULL order by id"""
+                         .format(tenant_id, offset))
                 cursor.execute(query)
             else:
                 cursor.execute("""select * from event_transform
-                    where tenant_id = %s and deleted_at IS NULL""",
+                    where tenant_id = %s and deleted_at IS NULL order by id""",
                                [tenant_id])
             return cursor.fetchall()
 
@@ -71,8 +84,8 @@ class TransformsRepository(mysql_repository.MySQLRepository,
         cnxn, cursor = self._get_cnxn_cursor_tuple()
         with cnxn:
             cursor.execute("""select * from event_transform
-            where tenant_id = %s and id = %s and deleted_at IS NULL""",
-                           (tenant_id, transform_id))
+            where tenant_id = %s and id = %s and deleted_at
+            IS NULL order by id """,(tenant_id, transform_id))
             return cursor.fetchall()
 
     def delete_transform(self, tenant_id, transform_id):
