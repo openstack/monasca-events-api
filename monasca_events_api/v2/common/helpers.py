@@ -248,11 +248,11 @@ def get_query_period(req):
 def paginate(resource, uri):
 
     limit = constants.PAGE_LIMIT
+
     parsed_uri = urlparse.urlparse(uri)
 
     self_link = build_base_uri(parsed_uri)
-    print("RESOURCE LENGTH = {}".format(len(resource)))
-    print("LIMIT = {}".format(limit))
+
     if resource and len(resource) >= limit:
 
         if 'timestamp' in resource[limit - 1]:
