@@ -80,7 +80,8 @@ class Transforms(transforms_api_v2.TransformsV2API):
         else:
             helpers.validate_authorization(req, self._default_authorized_roles)
             tenant_id = helpers.get_tenant_id(req)
-            res.body = self._list_transforms(tenant_id)
+            limit = helpers.get_query_param(req, 'limit')
+            res.body = self._list_transforms(tenant_id, limit)
             res.status = falcon.HTTP_200
 
     def on_delete(self, req, res, transform_id):
@@ -152,9 +153,10 @@ class Transforms(transforms_api_v2.TransformsV2API):
                     'specification': specification, 'enabled': enabled}
         return json.dumps(response)
 
-    def _list_transforms(self, tenant_id):
+    def _list_transforms(self, tenant_id, limit):
         try:
-            transforms = self._transforms_repo.list_transforms(tenant_id)
+            transforms = self._transforms_repo.list_transforms(tenant_id,
+                                                               limit)
             for transform in transforms:
                 transform['specification'] = yaml.safe_dump(transform['specification'])
             return json.dumps(transforms, cls=MyEncoder)

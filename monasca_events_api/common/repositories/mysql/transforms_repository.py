@@ -53,11 +53,18 @@ class TransformsRepository(mysql_repository.MySQLRepository,
                 else:
                     raise e
 
-    def list_transforms(self, tenant_id):
+    def list_transforms(self, tenant_id, limit=None):
         cnxn, cursor = self._get_cnxn_cursor_tuple()
         with cnxn:
-            cursor.execute("""select * from event_transform
-            where tenant_id = %s and deleted_at IS NULL""", [tenant_id])
+            if limit:
+                query = ("""select * from event_transform
+                    where tenant_id = "{}" and deleted_at IS NULL limit {}"""
+                         .format(tenant_id, limit))
+                cursor.execute(query)
+            else:
+                cursor.execute("""select * from event_transform
+                    where tenant_id = %s and deleted_at IS NULL""",
+                               [tenant_id])
             return cursor.fetchall()
 
     def list_transform(self, tenant_id, transform_id):
