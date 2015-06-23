@@ -119,7 +119,7 @@ class Events(events_api_v2.EventsV2API):
     @resource.resource_try_catch_block
     def _list_events(self, tenant_id, uri, offset, limit):
         rows = self._events_repo.list_events(tenant_id, offset, limit)
-        return helpers.paginate(self._build_events(rows), uri, offset)
+        return helpers.paginate(self._build_events(rows), uri)
 
     @resource.resource_try_catch_block
     def _list_event(self, tenant_id, event_id, uri):
