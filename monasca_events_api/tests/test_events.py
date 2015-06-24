@@ -51,17 +51,16 @@ class EventsSubClass(Events):
             creation_time=timeutils.utcnow_ts())
 
 
-class Test_first(unittest.TestCase):
+class Test_Events(unittest.TestCase):
 
-    @mock.patch('monascaclient.ksclient.KSClient')
-    def _generate_req(self, token):
+    def _generate_req(self):
         """Generate a mock HTTP request"""
         req = mock.MagicMock()
         req.get_param.return_value = None
 
         req.headers = {
             'X-Auth-User': 'mini-mon',
-            'X-Auth-Token': token,
+            'X-Auth-Token': "ABCD",
             'X-Auth-Key': 'password',
             'X-TENANT-ID': '0ab1ac0a-2867-402d',
             'X-ROLES': 'user, domainuser, domainadmin, monasca-user, monasca-agent',
@@ -260,7 +259,7 @@ class Test_first(unittest.TestCase):
         res.status = 0
         try:
             eventsObj.on_post(self._generate_req(), res)
-            assertFalse(
+            self.assertFalse(
                 1,
                 msg="Get Method should fail but succeeded, bad request sent")
         except Exception as e:
@@ -284,7 +283,7 @@ class Test_first(unittest.TestCase):
             validate,
             kafka):
         """POST method with Kafka Down"""
-        kafka.send_message.side_effect = exceptions.MessageQueueException()
+        kafka.send_message_batch.side_effect = exceptions.MessageQueueException()
 
         json.return_value = None
         validate.return_value = True
@@ -298,7 +297,7 @@ class Test_first(unittest.TestCase):
         res.body = {}
         try:
             eventsObj.on_post(self._generate_req(), res)
-            assertFalse(
+            self.assertFalse(
                 1,
                 msg="Kakfa Server Down, Post should fail but succeeded")
         except Exception as e:
@@ -361,7 +360,7 @@ class Test_first(unittest.TestCase):
         res.status = 0
         try:
             eventsObj.on_post(self._generate_req(), res)
-            assertFalse(
+            self.assertFalse(
                 1,
                 msg="Post Method should fail but succeeded, bad request sent")
         except Exception as e:

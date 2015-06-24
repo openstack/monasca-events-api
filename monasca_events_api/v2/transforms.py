@@ -25,6 +25,8 @@ import simport
 
 from monasca_events_api.api import transforms_api_v2
 from monasca_events_api.common.messaging import exceptions as message_queue_exceptions
+from monasca_events_api.common.messaging.message_formats.reference.transforms import (
+    transform as transform_event)
 from monasca_events_api.common.repositories import exceptions as repository_exceptions
 from monasca_events_api.openstack.common import log
 from monasca_events_api.openstack.common import uuidutils
@@ -32,8 +34,6 @@ from monasca_events_api.v2.common import helpers
 from monasca_events_api.v2.common.schemas import (exceptions as schemas_exceptions)
 from monasca_events_api.v2.common.schemas import (
     transforms_request_body_schema as schemas_transforms)
-from monasca_events_api.common.messaging.message_formats.reference.transforms import (
-    transform as transform_event)
 
 
 LOG = log.getLogger(__name__)

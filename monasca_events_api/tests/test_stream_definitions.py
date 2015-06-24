@@ -45,15 +45,14 @@ class StreamDefinitionsSubClass(StreamDefinitions):
 
 class Test_StreamDefinitions(unittest.TestCase):
 
-    @mock.patch('monascaclient.ksclient.KSClient')
-    def _generate_req(self, token):
+    def _generate_req(self):
         """Generate a mock HTTP request"""
         req = mock.MagicMock()
         req.get_param.return_value = None
 
         req.headers = {
             'X-Auth-User': 'mini-mon',
-            'X-Auth-Token': token,
+            'X-Auth-Token': 'ABCD',
             'X-Auth-Key': 'password',
             'X-TENANT-ID': '0ab1ac0a-2867-402d',
             'X-ROLES': 'user, domainuser, domainadmin, monasca-user, monasca-agent',

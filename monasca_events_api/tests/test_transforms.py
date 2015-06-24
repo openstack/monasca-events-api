@@ -35,15 +35,14 @@ class TransformsSubClass(Transforms):
 
 class Test_Transforms(unittest.TestCase):
 
-    @mock.patch('monascaclient.ksclient.KSClient')
-    def _generate_req(self, token):
+    def _generate_req(self):
         """Generate a mock HTTP request"""
         req = mock.MagicMock()
         req.get_param.return_value = None
 
         req.headers = {
             'X-Auth-User': 'mini-mon',
-            'X-Auth-Token': token,
+            'X-Auth-Token': "ABCD",
             'X-Auth-Key': 'password',
             'X-TENANT-ID': '0ab1ac0a-2867-402d',
             'X-ROLES': 'user,  domainuser,  domainadmin,  monasca-user,  monasca-agent',
@@ -246,7 +245,11 @@ class Test_Transforms(unittest.TestCase):
         helpers_validate.return_value = True
         validjson.return_value = True
         validateTransform.return_value = True
-        readhttp.return_value = self._generate_req()
+        readhttp.return_value = {
+            'name': 'Foo',
+            'description': 'transform def',
+            'specification': 'transform spec'}
+
         helper_tenant_id.return_value = '0ab1ac0a-2867-402d'
         generateUUID.return_value = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
