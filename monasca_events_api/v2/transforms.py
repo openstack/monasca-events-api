@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import ast
+import re
 import datetime
 import json
 from time import mktime
@@ -75,7 +75,10 @@ class Transforms(transforms_api_v2.TransformsV2API):
         if transform_id:
             helpers.validate_authorization(req, self._default_authorized_roles)
             tenant_id = helpers.get_tenant_id(req)
-            res.body = self._list_transform(tenant_id, transform_id, req.uri)
+            result = self._list_transform(tenant_id, transform_id, req.uri)
+            helpers.add_links_to_resource(
+                result, re.sub('/' + transform_id, '', req.uri))
+            res.body = json.dumps(result, cls=MyEncoder)
             res.status = falcon.HTTP_200
         else:
             helpers.validate_authorization(req, self._default_authorized_roles)
@@ -84,7 +87,8 @@ class Transforms(transforms_api_v2.TransformsV2API):
             offset = helpers.normalize_offset(helpers.get_query_param(
                 req,
                 'offset'))
-            res.body = self._list_transforms(tenant_id, limit, offset, req.uri)
+            result = self._list_transforms(tenant_id, limit, offset, req.uri)
+            res.body = json.dumps(result, cls=MyEncoder)
             res.status = falcon.HTTP_200
 
     def on_delete(self, req, res, transform_id):
@@ -160,10 +164,8 @@ class Transforms(transforms_api_v2.TransformsV2API):
         try:
             transforms = self._transforms_repo.list_transforms(tenant_id,
                                                                limit, offset)
-            for transform in transforms:
-                transform['specification'] = yaml.safe_dump(transform['specification'])
             transforms = helpers.paginate(transforms, uri)
-            return json.dumps(transforms, cls=MyEncoder)
+            return transforms
         except repository_exceptions.RepositoryException as ex:
             LOG.error(ex)
             raise falcon.HTTPInternalServerError('Service unavailable',
@@ -173,12 +175,7 @@ class Transforms(transforms_api_v2.TransformsV2API):
         try:
             transform = self._transforms_repo.list_transform(tenant_id,
                                                              transform_id)[0]
-            transform['specification'] = yaml.safe_dump(
-                transform['specification'])
-            transform_list = list()
-            transform_list.append(transform)
-            transform = helpers.paginate(transform, uri)
-            return json.dumps(transform_list, cls=MyEncoder)
+            return transform
         except repository_exceptions.RepositoryException as ex:
             LOG.error(ex)
             raise falcon.HTTPInternalServerError('Service unavailable',

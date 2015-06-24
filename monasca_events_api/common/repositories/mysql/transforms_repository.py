@@ -97,7 +97,7 @@ class TransformsRepository(mysql_repository.MySQLRepository,
                                     .format(tenant_id))
 
                 query = (TransformsRepository.base_query + tenant_id_clause + TransformsRepository.order_by_clause)
-                print query
+
                 cursor.execute(query)
             return cursor.fetchall()
 
