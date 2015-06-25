@@ -27,6 +27,7 @@ oslo.config>=1.2.1
 oslo.middleware
 oslo.serialization
 oslo.utils
+oslo.log
 pastedeploy>=1.3.3
 pbr>=0.6,!=0.7,<1.0
 python-dateutil>=1.5
