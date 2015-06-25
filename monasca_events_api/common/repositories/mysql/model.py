@@ -12,10 +12,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo.config import cfg
+from oslo_config import cfg
+from oslo_log import log
 import peewee
-
-from monasca_events_api.openstack.common import log
 
 
 LOG = log.getLogger(__name__)
@@ -27,5 +26,5 @@ db = peewee.MySQLDatabase(cfg.CONF.mysql.database_name,
 
 
 class Model(peewee.Model):
-    class Meta:
+    class Meta(object):
         database = db

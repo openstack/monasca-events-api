@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+
 def transform(transform_id, tenant_id, event):
     transformed_event = dict(
         transform_definition=event,

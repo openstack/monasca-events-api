@@ -12,17 +12,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 import os
 from wsgiref import simple_server
 
-from oslo.config import cfg
-import paste.deploy
-
 import falcon
+from oslo_config import cfg
+from oslo_log import log
+import paste.deploy
 import simport
 
-from monasca_events_api.openstack.common import log
 
 dispatcher_opts = [cfg.StrOpt('stream_definitions', default=None,
                               help='Stream definition endpoint'),
@@ -39,12 +37,12 @@ LOG = log.getLogger(__name__)
 
 
 def launch(conf, config_file="/etc/monasca/events_api.conf"):
+    log.register_options(cfg.CONF)
+    log.set_defaults()
     cfg.CONF(args=[],
              project='monasca_events_api',
              default_config_files=[config_file])
-    log_levels = (cfg.CONF.default_log_levels)
-    cfg.set_defaults(log.log_opts, default_log_levels=log_levels)
-    log.setup('monasca_events_api')
+    log.setup(cfg.CONF, 'monasca_events_api')
 
     app = falcon.API()
 
