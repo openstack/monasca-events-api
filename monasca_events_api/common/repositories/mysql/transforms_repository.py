@@ -18,6 +18,7 @@ from oslo_utils import timeutils
 
 from monasca_events_api.common.repositories.mysql import mysql_repository
 from monasca_events_api.common.repositories import transforms_repository
+from monasca_events_api.common.repositories import constants
 
 LOG = log.getLogger(__name__)
 
@@ -76,15 +77,25 @@ class TransformsRepository(mysql_repository.MySQLRepository,
         return rows
 
     def list_transform(self, tenant_id, transform_id):
-        cnxn, cursor = self._get_cnxn_cursor_tuple()
-        with cnxn:
-            cursor.execute("""select * from event_transform
-            where tenant_id = %s and id = %s and deleted_at
-            IS NULL order by id """, (tenant_id, transform_id))
-            return cursor.fetchall()
+        base_query = """select * from event_transform where deleted_at IS NULL"""
+        tenant_id_clause = " and tenant_id = \"{}\"".format(tenant_id)
+        transform_id_clause = " and transform_id = \"{}\"".format(transform_id)
+
+        query = (base_query+
+                 tenant_id_clause+
+                 transform_id_clause)
+
+        rows = self._execute_query(query, [])
+        return rows
 
     def delete_transform(self, tenant_id, transform_id):
-        cnxn, cursor = self._get_cnxn_cursor_tuple()
-        with cnxn:
-            cursor.execute("""delete from event_transform
-            where id = %s and tenant_id = %s""", (transform_id, tenant_id))
+        now = timeutils.utcnow()
+        base_query = "update event_transform set deleted_at = \"{}\"  where"\
+            .format(now)
+        tenant_id_clause = " tenant_id = \"{}\"".format(tenant_id)
+        transform_id_clause = " and id = \"{}\"".format(transform_id)
+
+        query = (base_query +
+                 tenant_id_clause +
+                 transform_id_clause)
+        self._execute_query(query, [])
