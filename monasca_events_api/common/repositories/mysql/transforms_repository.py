@@ -25,9 +25,6 @@ LOG = log.getLogger(__name__)
 class TransformsRepository(mysql_repository.MySQLRepository,
                            transforms_repository.TransformsRepository):
 
-    base_query = """select * from event_transform where deleted_at IS NULL"""
-    order_by_clause = " order by id"
-
     def create_transforms(self, id, tenant_id, name, description,
                           specification, enabled):
 
@@ -57,54 +54,33 @@ class TransformsRepository(mysql_repository.MySQLRepository,
                     raise e
 
     def list_transforms(self, tenant_id, limit=None, offset=None):
-        cnxn, cursor = self._get_cnxn_cursor_tuple()
-        with cnxn:
-            if limit:
-                if offset:
-                    tenant_id_clause = (" and tenant_id = \"{}\""
-                                        .format(tenant_id))
+        base_query = """select * from event_transform where deleted_at IS NULL"""
+        tenant_id_clause = " and tenant_id = \"{}\"".format(tenant_id)
+        order_by_clause = " order by id"
 
-                    offset_clause = " and id > \"{}\"".format(offset)
+        offset_clause = ' '
+        if offset:
+            offset_clause = " and id > \"{}\"".format(offset)
 
-                    limit_clause = " limit {}".format(limit)
+        if not limit:
+            limit = constants.PAGE_LIMIT
+        limit_clause = " limit {}".format(limit)
 
-                    query = (TransformsRepository.base_query + tenant_id_clause +
-                             offset_clause + TransformsRepository.order_by_clause + limit_clause)
-                else:
-                    tenant_id_clause = (" and tenant_id = \"{}\""
-                                        .format(tenant_id))
+        query = (base_query +
+                 tenant_id_clause +
+                 offset_clause +
+                 order_by_clause +
+                 limit_clause)
 
-                    limit_clause = " limit {}".format(limit)
-
-                    query = (TransformsRepository.base_query + tenant_id_clause
-                             + TransformsRepository.order_by_clause + limit_clause)
-
-                cursor.execute(query)
-            elif offset:
-                tenant_id_clause = (" and tenant_id = \"{}\""
-                                    .format(tenant_id))
-
-                offset_clause = " and id > \"{}\"".format(offset)
-
-                query = (TransformsRepository.base_query + tenant_id_clause + offset_clause +
-                         TransformsRepository.order_by_clause)
-
-                cursor.execute(query)
-            else:
-                tenant_id_clause = (" and tenant_id = \"{}\""
-                                    .format(tenant_id))
-
-                query = (TransformsRepository.base_query + tenant_id_clause + TransformsRepository.order_by_clause)
-
-                cursor.execute(query)
-            return cursor.fetchall()
+        rows = self._execute_query(query, [])
+        return rows
 
     def list_transform(self, tenant_id, transform_id):
         cnxn, cursor = self._get_cnxn_cursor_tuple()
         with cnxn:
             cursor.execute("""select * from event_transform
             where tenant_id = %s and id = %s and deleted_at
-            IS NULL order by id """,(tenant_id, transform_id))
+            IS NULL order by id """, (tenant_id, transform_id))
             return cursor.fetchall()
 
     def delete_transform(self, tenant_id, transform_id):
