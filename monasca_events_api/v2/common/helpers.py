@@ -18,10 +18,10 @@ import urlparse
 import urllib
 
 import falcon
+from oslo_log import log
 import simplejson
 
 from monasca_events_api.common.repositories import constants
-from monasca_events_api.openstack.common import log
 
 LOG = log.getLogger(__name__)
 

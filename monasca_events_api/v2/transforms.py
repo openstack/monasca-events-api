@@ -19,17 +19,17 @@ from time import mktime
 import yaml
 
 import falcon
-from oslo.config import cfg
+from oslo_config import cfg
+from oslo_log import log
+from oslo_utils import uuidutils
 
 import simport
 
 from monasca_events_api.api import transforms_api_v2
 from monasca_events_api.common.messaging import exceptions as message_queue_exceptions
-from monasca_events_api.common.messaging.message_formats.reference.transforms import (
-    transform as transform_event)
+from monasca_events_api.common.messaging.message_formats import (
+    transforms as message_formats_transforms)
 from monasca_events_api.common.repositories import exceptions as repository_exceptions
-from monasca_events_api.openstack.common import log
-from monasca_events_api.openstack.common import uuidutils
 from monasca_events_api.v2.common import helpers
 from monasca_events_api.v2.common.schemas import (exceptions as schemas_exceptions)
 from monasca_events_api.v2.common.schemas import (
@@ -66,7 +66,8 @@ class Transforms(transforms_api_v2.TransformsV2API):
         transform_id = uuidutils.generate_uuid()
         tenant_id = helpers.get_tenant_id(req)
         self._create_transform(transform_id, tenant_id, transform)
-        transformed_event = transform_event(transform_id, tenant_id, transform)
+        transformed_event = message_formats_transforms.transform(
+            transform_id, tenant_id, transform)
         self._send_event(transformed_event)
         res.body = self._create_transform_response(transform_id, transform)
         res.status = falcon.HTTP_200
@@ -95,7 +96,9 @@ class Transforms(transforms_api_v2.TransformsV2API):
         helpers.validate_authorization(req, self._default_authorized_roles)
         tenant_id = helpers.get_tenant_id(req)
         self._delete_transform(tenant_id, transform_id)
-        transformed_event = transform_event(transform_id, tenant_id, [])
+        transformed_event = message_formats_transforms.transform(transform_id,
+                                                                 tenant_id,
+                                                                 [])
         self._send_event(transformed_event)
         res.status = falcon.HTTP_204
 

@@ -13,9 +13,10 @@
 # under the License.
 
 import iso8601
+
+from oslo_log import log
 import voluptuous
 
-from monasca_events_api.openstack.common import log
 from monasca_events_api.v2.common.schemas import exceptions
 
 LOG = log.getLogger(__name__)

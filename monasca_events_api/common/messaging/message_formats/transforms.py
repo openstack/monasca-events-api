@@ -1,4 +1,4 @@
-# Copyright 2014 Hewlett-Packard
+# Copyright 2015 Hewlett-Packard
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -12,13 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from monasca_events_api.common.messaging import publisher
 
-
-class RabbitmqPublisher(publisher.Publisher):
-
-    def __init__(self, topic):
-        pass
-
-    def send_message(self, message):
-        raise NotImplemented()
+def transform(transform_id, tenant_id, event):
+    transformed_event = dict(
+        transform_definition=event,
+        tenant_id=tenant_id,
+        transform_id=transform_id
+    )
+    return transformed_event

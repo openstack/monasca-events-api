@@ -13,12 +13,11 @@
 #    under the License.
 
 import falcon
+from oslo_log import log
+from oslo_middleware import request_id
+from oslo_serialization import jsonutils
 
 from monasca_events_api.middleware import context
-from monasca_events_api.openstack.common import log
-
-from oslo.middleware import request_id
-from oslo.serialization import jsonutils
 
 
 LOG = log.getLogger(__name__)

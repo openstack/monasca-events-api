@@ -12,28 +12,25 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import collections
 import re
 
 import falcon
-
-import collections
-
+from oslo_config import cfg
+from oslo_log import log
 import simport
 
 from monasca_events_api.api import events_api_v2
 from monasca_events_api.common.messaging import exceptions \
     as message_queue_exceptions
-from monasca_events_api.common.messaging.message_formats \
-    import events_transform_factory
-from monasca_events_api.openstack.common import log
+from monasca_events_api.common.messaging.message_formats import events \
+    as message_format_events
 from monasca_events_api.v2.common import helpers
 from monasca_events_api.v2.common import resource
 from monasca_events_api.v2.common.schemas import (
     events_request_body_schema as schemas_event)
 from monasca_events_api.v2.common.schemas import (
     exceptions as schemas_exceptions)
-
-from oslo.config import cfg
 
 
 LOG = log.getLogger(__name__)
@@ -50,16 +47,15 @@ class Events(events_api_v2.EventsV2API):
         self._post_events_authorized_roles = (
             cfg.CONF.security.default_authorized_roles +
             cfg.CONF.security.agent_authorized_roles)
-
-        self._event_transform = (
-            events_transform_factory.create_events_transform())
-
         self._message_queue = (
             simport.load(cfg.CONF.messaging.driver)("raw-events"))
         self._events_repo = (
             simport.load(cfg.CONF.repositories.events)())
 
     def on_get(self, req, res, event_id=None):
+        helpers.validate_authorization(req, self._default_authorized_roles)
+        tenant_id = helpers.get_tenant_id(req)
+
         if event_id:
             helpers.validate_authorization(req, self._default_authorized_roles)
             tenant_id = helpers.get_tenant_id(req)
@@ -69,8 +65,6 @@ class Events(events_api_v2.EventsV2API):
             res.body = helpers.dumpit_utf8(result)
             res.status = falcon.HTTP_200
         else:
-            helpers.validate_authorization(req, self._default_authorized_roles)
-            tenant_id = helpers.get_tenant_id(req)
             offset = helpers.normalize_offset(helpers.get_query_param(
                 req,
                 'offset'))
@@ -81,14 +75,13 @@ class Events(events_api_v2.EventsV2API):
             res.status = falcon.HTTP_200
 
     def on_post(self, req, res):
-        helpers.validate_json_content_type(req)
         helpers.validate_authorization(req, self._post_events_authorized_roles)
+        helpers.validate_json_content_type(req)
         event = helpers.read_http_resource(req)
-
         self._validate_event(event)
         tenant_id = helpers.get_tenant_id(req)
-        transformed_event = self._event_transform(event, tenant_id,
-                                                  self._region)
+        transformed_event = message_format_events.transform(event, tenant_id,
+                                                            self._region)
         self._send_event(transformed_event)
         res.status = falcon.HTTP_204
 

@@ -11,16 +11,17 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 import uuid
 
 import MySQLdb
+from oslo_log import log
 from oslo_utils import timeutils
 
 from monasca_events_api.common.repositories import constants
 from monasca_events_api.common.repositories import exceptions
 from monasca_events_api.common.repositories.mysql import mysql_repository
 from monasca_events_api.common.repositories import streams_repository as sdr
-from monasca_events_api.openstack.common import log
 
 
 LOG = log.getLogger(__name__)
