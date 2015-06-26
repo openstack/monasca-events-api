@@ -287,7 +287,12 @@ class Test_Events(unittest.TestCase):
 
         json.return_value = None
         validate.return_value = True
-        readHttpRes.return_value = self._generate_req()
+        readHttpRes.return_value = {
+            'event_type': 'compute.instance.create.start',
+            'timestamp': '2015-06-17T21:57:03.493436',
+            'message_id': '1f4609b5-f01d-11e4-81ac-20c9d0b84f8b'
+        }
+
         tenantid.return_value = '0ab1ac0a-2867-402d'
         event.return_value = True
 

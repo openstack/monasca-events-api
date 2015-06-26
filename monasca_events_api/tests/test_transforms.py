@@ -219,7 +219,6 @@ class Test_Transforms(unittest.TestCase):
 
     @mock.patch(
         'monasca_events_api.common.repositories.mysql.mysql_repository.mdb')
-    @mock.patch('monasca_events_api.openstack.common.uuidutils.generate_uuid')
     @mock.patch(
         'monasca_events_api.v2.transforms.Transforms._validate_transform')
     @mock.patch(
@@ -237,7 +236,6 @@ class Test_Transforms(unittest.TestCase):
             deleteTransform,
             validjson,
             validateTransform,
-            generateUUID,
             mysqlRepo):
         """Post Method fail due to db down"""
         mysqlRepo.connect.side_effect = repository_exceptions.RepositoryException(
@@ -251,7 +249,6 @@ class Test_Transforms(unittest.TestCase):
             'specification': 'transform spec'}
 
         helper_tenant_id.return_value = '0ab1ac0a-2867-402d'
-        generateUUID.return_value = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
         transObj = TransformsSubClass()
         transObj._transforms_repo = TransformsRepository()
@@ -330,7 +327,6 @@ class Test_Transforms(unittest.TestCase):
         'monasca_events_api.v2.transforms.Transforms._create_transform_response')
     @mock.patch(
         'monasca_events_api.common.repositories.mysql.mysql_repository.mdb')
-    @mock.patch('monasca_events_api.openstack.common.uuidutils.generate_uuid')
     @mock.patch(
         'monasca_events_api.v2.transforms.Transforms._validate_transform')
     @mock.patch(
@@ -348,7 +344,6 @@ class Test_Transforms(unittest.TestCase):
             deleteTransform,
             validjson,
             validateTransform,
-            generateUUID,
             mysqlRepo,
             createRes,
             kafka):
@@ -362,7 +357,6 @@ class Test_Transforms(unittest.TestCase):
         createRes.return_value = returnTransform
         readhttp.return_value = returnTransform
         helper_tenant_id.return_value = '0ab1ac0a-2867-402d'
-        generateUUID.return_value = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
         transObj = TransformsSubClass()
         transObj._message_queue = kafka
@@ -380,7 +374,6 @@ class Test_Transforms(unittest.TestCase):
         'monasca_events_api.v2.transforms.Transforms._create_transform_response')
     @mock.patch(
         'monasca_events_api.common.repositories.mysql.mysql_repository.mdb')
-    @mock.patch('monasca_events_api.openstack.common.uuidutils.generate_uuid')
     @mock.patch(
         'monasca_events_api.v2.common.helpers.validate_json_content_type')
     @mock.patch(
@@ -395,7 +388,6 @@ class Test_Transforms(unittest.TestCase):
             helpers_validate,
             deleteTransform,
             validjson,
-            generateUUID,
             mysqlRepo,
             createRes,
             kafka):
@@ -409,7 +401,6 @@ class Test_Transforms(unittest.TestCase):
         createRes.return_value = returnTransform
         readhttp.return_value = returnTransform
         helper_tenant_id.return_value = '0ab1ac0a-2867-402d'
-        generateUUID.return_value = "067e6162-3b6f-4ae2-a171-2470b63dff00"
 
         transObj = TransformsSubClass()
         transObj._message_queue = kafka
