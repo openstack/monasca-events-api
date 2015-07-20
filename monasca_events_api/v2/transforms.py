@@ -178,22 +178,9 @@ class Transforms(transforms_api_v2.TransformsV2API):
         try:
             transform = self._transforms_repo.list_transform(tenant_id,
                                                              transform_id)[0]
-            return transform
-        except repository_exceptions.RepositoryException as ex:
-            LOG.error(ex)
-            raise falcon.HTTPInternalServerError('Service unavailable',
-                                                 ex.message)
-
-    def _list_transform(self, tenant_id, transform_id, uri):
-        try:
-            transform = self._transforms_repo.list_transform(tenant_id,
-                                                             transform_id)[0]
             transform['specification'] = yaml.safe_dump(
                 transform['specification'])
-            transform_list = list()
-            transform_list.append(transform)
-            transform_list = helpers.paginate(transform, uri)
-            return json.dumps(transform_list, cls=MyEncoder)
+            return transform
         except repository_exceptions.RepositoryException as ex:
             LOG.error(ex)
             raise falcon.HTTPInternalServerError('Service unavailable',

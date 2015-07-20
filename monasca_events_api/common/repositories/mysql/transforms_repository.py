@@ -79,7 +79,7 @@ class TransformsRepository(mysql_repository.MySQLRepository,
     def list_transform(self, tenant_id, transform_id):
         base_query = """select * from event_transform where deleted_at IS NULL"""
         tenant_id_clause = " and tenant_id = \"{}\"".format(tenant_id)
-        transform_id_clause = " and transform_id = \"{}\"".format(transform_id)
+        transform_id_clause = " and id = \"{}\"".format(transform_id)
 
         query = (base_query+
                  tenant_id_clause+
