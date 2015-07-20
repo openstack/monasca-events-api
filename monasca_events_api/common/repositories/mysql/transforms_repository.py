@@ -18,14 +18,17 @@ from oslo_utils import timeutils
 
 from monasca_events_api.common.repositories.mysql import mysql_repository
 from monasca_events_api.common.repositories import transforms_repository
+from monasca_events_api.common.repositories import constants
 
 LOG = log.getLogger(__name__)
 
 
 class TransformsRepository(mysql_repository.MySQLRepository,
                            transforms_repository.TransformsRepository):
+
     def create_transforms(self, id, tenant_id, name, description,
                           specification, enabled):
+
         cnxn, cursor = self._get_cnxn_cursor_tuple()
         with cnxn:
             now = timeutils.utcnow()
@@ -51,15 +54,48 @@ class TransformsRepository(mysql_repository.MySQLRepository,
                 else:
                     raise e
 
-    def list_transforms(self, tenant_id):
-        cnxn, cursor = self._get_cnxn_cursor_tuple()
-        with cnxn:
-            cursor.execute("""select * from event_transform
-            where tenant_id = %s and deleted_at IS NULL""", [tenant_id])
-            return cursor.fetchall()
+    def list_transforms(self, tenant_id, limit=None, offset=None):
+        base_query = """select * from event_transform where deleted_at IS NULL"""
+        tenant_id_clause = " and tenant_id = \"{}\"".format(tenant_id)
+        order_by_clause = " order by id"
+
+        offset_clause = ' '
+        if offset:
+            offset_clause = " and id > \"{}\"".format(offset)
+
+        if not limit:
+            limit = constants.PAGE_LIMIT
+        limit_clause = " limit {}".format(limit)
+
+        query = (base_query +
+                 tenant_id_clause +
+                 offset_clause +
+                 order_by_clause +
+                 limit_clause)
+
+        rows = self._execute_query(query, [])
+        return rows
+
+    def list_transform(self, tenant_id, transform_id):
+        base_query = """select * from event_transform where deleted_at IS NULL"""
+        tenant_id_clause = " and tenant_id = \"{}\"".format(tenant_id)
+        transform_id_clause = " and id = \"{}\"".format(transform_id)
+
+        query = (base_query+
+                 tenant_id_clause+
+                 transform_id_clause)
+
+        rows = self._execute_query(query, [])
+        return rows
 
     def delete_transform(self, tenant_id, transform_id):
-        cnxn, cursor = self._get_cnxn_cursor_tuple()
-        with cnxn:
-            cursor.execute("""delete from event_transform
-            where id = %s and tenant_id = %s""", (transform_id, tenant_id))
+        now = timeutils.utcnow()
+        base_query = "update event_transform set deleted_at = \"{}\"  where"\
+            .format(now)
+        tenant_id_clause = " tenant_id = \"{}\"".format(tenant_id)
+        transform_id_clause = " and id = \"{}\"".format(transform_id)
+
+        query = (base_query +
+                 tenant_id_clause +
+                 transform_id_clause)
+        self._execute_query(query, [])

@@ -13,6 +13,7 @@
 # under the License.
 
 import collections
+import re
 
 import falcon
 from oslo_config import cfg
@@ -56,7 +57,11 @@ class Events(events_api_v2.EventsV2API):
         tenant_id = helpers.get_tenant_id(req)
 
         if event_id:
-            result = self._list_event(tenant_id, event_id, req.uri)
+            helpers.validate_authorization(req, self._default_authorized_roles)
+            tenant_id = helpers.get_tenant_id(req)
+            result = self._list_event(tenant_id, event_id)
+            helpers.add_links_to_resource(
+                result[0], re.sub('/' + event_id, '', req.uri))
             res.body = helpers.dumpit_utf8(result)
             res.status = falcon.HTTP_200
         else:
@@ -111,10 +116,10 @@ class Events(events_api_v2.EventsV2API):
     @resource.resource_try_catch_block
     def _list_events(self, tenant_id, uri, offset, limit):
         rows = self._events_repo.list_events(tenant_id, offset, limit)
-        return helpers.paginate(self._build_events(rows), uri, offset)
+        return helpers.paginate(self._build_events(rows), uri)
 
     @resource.resource_try_catch_block
-    def _list_event(self, tenant_id, event_id, uri):
+    def _list_event(self, tenant_id, event_id):
         rows = self._events_repo.list_event(tenant_id, event_id)
         return self._build_events(rows)
 

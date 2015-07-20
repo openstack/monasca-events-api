@@ -21,7 +21,7 @@ import yaml
 
 from monascaclient import ksclient
 
-events_url = "http://192.168.10.4:8082"
+events_url = "http://127.0.0.1:8082"
 
 
 def token():
@@ -133,7 +133,7 @@ def test_stream_definition_delete():
         data=json.dumps(body),
         headers=headers)
     stream_dict = json.loads(stream_resp.text)
-    stream_id = str(stream_dict[0]['id'])
+    stream_id = str(stream_dict[0]['elements']['id'])
     response = requests.delete(
         url=events_url + "/v2.0/stream-definitions/{}".format(
             stream_id),
@@ -181,7 +181,7 @@ def test_transforms():
         data=json.dumps(body),
         headers=headers)
     transform_dict = json.loads(response.text)
-    transform_dict_id = transform_dict[0]['id']
+    transform_dict_id = transform_dict['elements'][0]['id']
     response = requests.delete(
         url=events_url + "/v2.0/transforms/{}".format(transform_dict_id),
         data=json.dumps(body),
@@ -189,8 +189,8 @@ def test_transforms():
     assert response.status_code == 204
     print("DELETE /transforms success")
 
-test_stream_definition_post()
-test_stream_definition_get()
-test_stream_definition_delete()
-test_events_get_all()
+# test_stream_definition_post()
+# test_stream_definition_get()
+# test_stream_definition_delete()
+# test_events_get_all()
 test_transforms()

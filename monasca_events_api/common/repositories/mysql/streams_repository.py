@@ -95,6 +95,9 @@ class StreamsRepository(mysql_repository.MySQLRepository,
         else:
             order_by_clause = " order by sd.created_at "
             limit_clause = ""
+            if limit:
+                limit_clause = " limit %s"
+                parms.append(int(limit))
 
         query = select_clause + where_clause + order_by_clause + limit_clause
 

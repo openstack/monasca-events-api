@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import ast
+import re
 import datetime
 import json
 from time import mktime
@@ -72,11 +72,25 @@ class Transforms(transforms_api_v2.TransformsV2API):
         res.body = self._create_transform_response(transform_id, transform)
         res.status = falcon.HTTP_200
 
-    def on_get(self, req, res):
-        helpers.validate_authorization(req, self._default_authorized_roles)
-        tenant_id = helpers.get_tenant_id(req)
-        res.body = self._list_transforms(tenant_id)
-        res.status = falcon.HTTP_200
+    def on_get(self, req, res, transform_id=None):
+        if transform_id:
+            helpers.validate_authorization(req, self._default_authorized_roles)
+            tenant_id = helpers.get_tenant_id(req)
+            result = self._list_transform(tenant_id, transform_id, req.uri)
+            helpers.add_links_to_resource(
+                result, re.sub('/' + transform_id, '', req.uri))
+            res.body = json.dumps(result, cls=MyEncoder)
+            res.status = falcon.HTTP_200
+        else:
+            helpers.validate_authorization(req, self._default_authorized_roles)
+            tenant_id = helpers.get_tenant_id(req)
+            limit = helpers.get_query_param(req, 'limit')
+            offset = helpers.normalize_offset(helpers.get_query_param(
+                req,
+                'offset'))
+            result = self._list_transforms(tenant_id, limit, offset, req.uri)
+            res.body = json.dumps(result, cls=MyEncoder)
+            res.status = falcon.HTTP_200
 
     def on_delete(self, req, res, transform_id):
         helpers.validate_authorization(req, self._default_authorized_roles)
@@ -149,13 +163,24 @@ class Transforms(transforms_api_v2.TransformsV2API):
                     'specification': specification, 'enabled': enabled}
         return json.dumps(response)
 
-    def _list_transforms(self, tenant_id):
+    def _list_transforms(self, tenant_id, limit, offset, uri):
         try:
-            transforms = self._transforms_repo.list_transforms(tenant_id)
-            for transform in transforms:
-                transform['specification'] = yaml.safe_dump(
-                    ast.literal_eval(transform['specification']))
-            return json.dumps(transforms, cls=MyEncoder)
+            transforms = self._transforms_repo.list_transforms(tenant_id,
+                                                               limit, offset)
+            transforms = helpers.paginate(transforms, uri)
+            return transforms
+        except repository_exceptions.RepositoryException as ex:
+            LOG.error(ex)
+            raise falcon.HTTPInternalServerError('Service unavailable',
+                                                 ex.message)
+
+    def _list_transform(self, tenant_id, transform_id, uri):
+        try:
+            transform = self._transforms_repo.list_transform(tenant_id,
+                                                             transform_id)[0]
+            transform['specification'] = yaml.safe_dump(
+                transform['specification'])
+            return transform
         except repository_exceptions.RepositoryException as ex:
             LOG.error(ex)
             raise falcon.HTTPInternalServerError('Service unavailable',

@@ -15,6 +15,7 @@
 import datetime
 import json
 import urlparse
+import urllib
 
 import falcon
 from oslo_log import log
@@ -244,46 +245,46 @@ def get_query_period(req):
         raise falcon.HTTPBadRequest('Bad request', ex.message)
 
 
-def paginate(resource, uri, offset):
+def paginate(resource, uri):
 
-    if offset is not None:
+    limit = constants.PAGE_LIMIT
 
-        if resource:
+    parsed_uri = urlparse.urlparse(uri)
 
-            if len(resource) >= constants.PAGE_LIMIT:
+    self_link = build_base_uri(parsed_uri)
 
-                new_offset = resource[-1]['id']
+    if resource and len(resource) >= limit:
 
-                parsed_uri = urlparse.urlparse(uri)
+        if 'timestamp' in resource[limit - 1]:
+            new_offset = resource[limit - 1]['timestamp']
 
-                next_link = build_base_uri(parsed_uri)
+        if 'id' in resource[limit - 1]:
+            new_offset = resource[limit - 1]['id']
 
-                new_query_params = [u'offset' + '=' + str(new_offset).decode(
-                    'utf8')]
+        next_link = build_base_uri(parsed_uri)
 
-                for query_param in parsed_uri.query.split('&'):
-                    query_param_name, query_param_val = query_param.split('=')
-                    if query_param_name.lower() != 'offset':
-                        new_query_params.append(query_param)
+        new_query_params = [u'offset' + '=' + urllib.quote(
+            new_offset.encode('utf8'), safe='')]
 
-                next_link += '?' + '&'.join(new_query_params)
+        if new_query_params:
+            next_link += '?' + '&'.join(new_query_params)
 
-                resource = {u'links':
-                            [{u'rel': u'self', u'href': uri.decode('utf8')},
-                             {u'rel': u'next',
-                                u'href': next_link.decode('utf8')}],
-                            u'elements': resource}
+        resource = {u'links': ([{u'rel': u'self',
+                                 u'href': self_link.decode('utf8')},
+                                {u'rel': u'next',
+                                 u'href': next_link.decode('utf8')}]),
+                    u'elements': resource[:limit]}
 
-            else:
+    else:
 
-                resource = {u'links':
-                            [{u'rel': u'self', u'href': uri.decode('utf8')}],
-                            u'elements': resource}
+        resource = {u'links': ([{u'rel': u'self',
+                                 u'href': self_link.decode('utf8')}]),
+                    u'elements': resource}
 
     return resource
 
 
-def paginate_measurement(measurement, uri, offset):
+def paginate_measurement(measurement, uri):
 
     if offset is not None:
 

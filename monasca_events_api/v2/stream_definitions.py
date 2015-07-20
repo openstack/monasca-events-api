@@ -229,7 +229,7 @@ class StreamDefinitions(stream_definitions_api_v2.StreamDefinitionsV2API):
             helpers.add_links_to_resource(sd, req_uri)
             result.append(sd)
 
-        result = helpers.paginate(result, req_uri, offset)
+        result = helpers.paginate(result, req_uri)
 
         return result
 
