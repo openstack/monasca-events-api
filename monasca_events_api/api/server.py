@@ -22,7 +22,9 @@ import paste.deploy
 import simport
 
 
-dispatcher_opts = [cfg.StrOpt('stream_definitions', default=None,
+dispatcher_opts = [cfg.StrOpt('versions', default=None,
+                              help='Versions endpoint'),
+                   cfg.StrOpt('stream_definitions', default=None,
                               help='Stream definition endpoint'),
                    cfg.StrOpt('events', default=None,
                               help='Events endpoint'),
@@ -45,6 +47,10 @@ def launch(conf, config_file="/etc/monasca/events_api.conf"):
     log.setup(cfg.CONF, 'monasca_events_api')
 
     app = falcon.API()
+
+    versions = simport.load(cfg.CONF.dispatcher.versions)()
+    app.add_route("/", versions)
+    app.add_route("/{version_id}", versions)
 
     events = simport.load(cfg.CONF.dispatcher.events)()
     app.add_route("/v2.0/events", events)
