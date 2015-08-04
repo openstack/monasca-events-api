@@ -37,6 +37,7 @@ pyparsing>=2.0.3
 voluptuous>=0.8.7
 MySQL-python>=1.2.3
 eventlet
-simport
+greenlet
+simport>=0.0.dev0
 kafka-python>=0.9.1,<0.9.3
 requests>=1.1
