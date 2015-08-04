@@ -19,17 +19,18 @@ from oslo_utils import timeutils
 
 def transform(events, tenant_id, region):
     event_template = {'event': {},
-                      '_tenant_id': tenant_id,
                       'meta': {'tenantId': tenant_id, 'region': region},
                       'creation_time': timeutils.utcnow_ts()}
 
     if isinstance(events, list):
         transformed_events = []
         for event in events:
+            event['_tenant_id'] = tenant_id
             event_template['event'] = event
             transformed_events.append(json.dumps(event_template))
         return transformed_events
     else:
         transformed_event = event_template['event']
+        events['_tenant_id'] = tenant_id
         transformed_event['event'] = events
         return [json.dumps(transformed_event)]
