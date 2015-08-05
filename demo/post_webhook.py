@@ -1,5 +1,6 @@
 import datetime
 import json
+import random
 import requests
 
 import kafka.client
@@ -30,7 +31,12 @@ for raw_event in consumer:
         end = datetime.datetime.strptime(times['compute.instance.create.end'],
                                          time_format)
         duration = ((end - start).total_seconds() * microseconds_per_second)
-    except Exception:
+
+        duration = min(100, duration)
+
+        duration += random.uniform(5, 10)
+
+    except Exception as e:
         continue
 
     body = {'VM Create time': '{}'.format(duration),
