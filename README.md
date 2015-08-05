@@ -60,6 +60,397 @@ directory of this project
 
     tox -e py27   (or -e py26, -e py33)
 
+# Monasca Events API 
+
+Stream Definition Methods
+-------------------------
+
+## POST /v2.0/stream-definitions
+
+### Headers
+* X-Auth-Token (string, required) - Keystone auth token
+* Accept (string) - application/json
+
+### Request Body
+```
+{
+"fire_criteria": [
+                {"event_type": "compute.instance.create.start"},
+                {"event_type": "compute.instance.create.end"}
+                ],
+            "description": "provisioning duration",
+            "name": "example",
+            "group_by": ["instance_id"],
+            "expiration": 3000,
+            "select": [{
+                "traits": {"tenant_id": "406904"},
+                "event_type": "compute.instance.create.*"
+                }],
+            "fire_actions": [action_id],
+            "expire_actions": [action_id]
+            }
+```
+
+### Request Example
+```
+POST /v2.0/stream-definitions HTTP/1.1
+Host: 192.168.10.4:8082
+X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
+Accept: application/json
+Cache-Control: no-cache
+```
+
+## GET /v2.0/stream-definition
+### Headers
+* X-Auth-Token (string, required) - Keystone auth token
+* Accept (string) - application/json
+
+### Request Body
+None.
+
+### Request Example
+```
+GET /v2.0/stream-definitions HTTP/1.1
+Host: 192.168.10.4:8082
+X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
+Accept: application/json
+Cache-Control: no-cache
+```
+### Response Body
+Returns a JSON object with a 'links' array of links and an 'elements' array of stream definition objects with the following fields:
+
+* id (string)
+* name (string)
+* fire_actions (string)
+* description (string)
+* expire_actions (string)
+* created_at (datetime string)
+* select
+    * traits
+        * tenant_id (string)
+    * event_type (string)
+* group_by (string)
+* expiration (int)
+* links - links to stream-definition
+* updated_at (datetime string)
+* actions_enabled (bool)
+* fire_criteria - JSON list of event fire criteria
+
+### Response Body Example
+
+```
+{
+  "links": [
+    {
+      "rel": "self",
+      "href": "http://192.168.10.4:8082/v2.0/stream-definitions"
+    }
+  ],
+  "elements": [
+    {
+      "id": "242dd5f4-2ef6-11e5-8945-0800273a0b5b",
+      "fire_actions": [
+        "56330521-92da-4a84-8239-73d880b978fa"
+      ],
+      "description": "provisioning duration",
+      "expire_actions": [
+        "56330521-92da-4a84-8239-73d880b978fa"
+      ],
+      "created_at": "2015-07-20T15:44:01",
+      "select": [
+        {
+          "traits": {
+            "tenant_id": "406904"
+          },
+          "event_type": "compute.instance.create.*"
+        }
+      ],
+      "group_by": [
+        "instance_id"
+      ],
+      "expiration": 3000,
+      "links": [
+        {
+          "rel": "self",
+          "href": "http://192.168.10.4:8082/v2.0/stream-definitions/242dd5f4-2ef6-11e5-8945-0800273a0b5b"
+        }
+      ],
+      "updated_at": "2015-07-20T15:44:01",
+      "actions_enabled": true,
+      "name": "1437407040.8",
+      "fire_criteria": [
+        {
+          "event_type": "compute.instance.create.start"
+        },
+        {
+          "event_type": "compute.instance.create.end"
+        }
+      ]
+    }
+  ]
+}
+```
+
+## GET /v2.0/stream-definition/{definition_id}
+### Headers
+* X-Auth-Token (string, required) - Keystone auth token
+* Accept (string) - application/json
+
+### Request Body
+None.
+
+### Request Example
+```
+GET /v2.0/stream-definitions/242dd5f4-2ef6-11e5-8945-0800273a0b5b HTTP/1.1
+Host: 192.168.10.4:8082
+X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
+Accept: application/json
+Cache-Control: no-cache
+```
+### Response Body
+Returns a JSON object with a 'links' array of links and an 'elements' array of stream definition objects with the following fields:
+
+* id (string)
+* name (string)
+* fire_actions (string)
+* description (string)
+* expire_actions (string)
+* created_at (datetime string)
+* select
+    * traits
+        * tenant_id (string)
+    * event_type (string)
+* group_by (string)
+* expiration (int)
+* links - links to stream-definition
+* updated_at (datetime string)
+* actions_enabled (bool)
+* fire_criteria - JSON list of event fire criteria
+
+### Response Body Example
+```
+{
+  "id": "242dd5f4-2ef6-11e5-8945-0800273a0b5b",
+  "fire_actions": [
+    "56330521-92da-4a84-8239-73d880b978fa"
+  ],
+  "description": "provisioning duration",
+  "expire_actions": [
+    "56330521-92da-4a84-8239-73d880b978fa"
+  ],
+  "created_at": "2015-07-20T15:44:01",
+  "select": [
+    {
+      "traits": {
+        "tenant_id": "406904"
+      },
+      "event_type": "compute.instance.create.*"
+    }
+  ],
+  "group_by": [
+    "instance_id"
+  ],
+  "expiration": 3000,
+  "links": [
+    {
+      "rel": "self",
+      "href": "http://192.168.10.4:8082/v2.0/stream-definitions/242dd5f4-2ef6-11e5-8945-0800273a0b5b"
+    }
+  ],
+  "updated_at": "2015-07-20T15:44:01",
+  "actions_enabled": true,
+  "name": "1437407040.8",
+  "fire_criteria": [
+    {
+      "event_type": "compute.instance.create.start"
+    },
+    {
+      "event_type": "compute.instance.create.end"
+    }
+  ]
+}
+```
+## DELETE /v2.0/stream-definition/{definition_id}
+### Headers
+* X-Auth-Token (string, required) - Keystone auth token
+* Accept (string) - application/json
+
+### Request Body
+None.
+
+### Request Example
+```
+DELETE /v2.0/stream-definitions/242dd5f4-2ef6-11e5-8945-0800273a0b5b HTTP/1.1
+Host: 192.168.10.4:8082
+X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
+Accept: application/json
+Cache-Control: no-cache
+```
+### Response Body
+None.
+
+### Response Body Example
+None.
+
+## POST /v2.0/transforms/
+### Headers
+* X-Auth-Token (string, required) - Keystone auth token
+* Accept (string) - application/json
+
+### Request Body
+```
+{
+    "name": 'example',
+    "description": 'an example definition',
+    "specification": YAML_data
+}
+```
+
+### Request Example
+```
+POST /v2.0/transforms/ HTTP/1.1
+Host: 192.168.10.4:8082
+X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
+Accept: application/json
+Cache-Control: no-cache
+```
+### Response Body
+None.
+
+### Response Body Example
+None.
+
+## GET /v2.0/transforms/
+### Headers
+* X-Auth-Token (string, required) - Keystone auth token
+* Accept (string) - application/json
+
+### Request Body
+None.
+
+### Request Example
+```
+GET /v2.0/transforms/ HTTP/1.1
+Host: 192.168.10.4:8082
+X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
+Accept: application/json
+Cache-Control: no-cache
+```
+### Response Body
+Returns a JSON object with a 'links' array of links and an 'elements' array of stream definition objects with the following fields:
+
+* id (string)
+* name (string)
+* description (string)
+* enabled (bool)
+* tenant_id (string)
+* deleted_at (datetime)
+* specification (string YAML data)
+* created_at (datetime)
+* updated_at (datetime)
+
+### Response Body Example
+```
+{
+  "links": [
+    {
+      "rel": "self",
+      "href": "http://192.168.10.4:8082/v2.0/transforms"
+    }
+  ],
+  "elements": [
+    {
+      "enabled": 0,
+      "id": "a794f22f-a231-47a0-8618-37f12b7a6f77",
+      "tenant_id": "d502aac2388b43f392c302b37a401ae5",
+      "deleted_at": null,
+      "specification": YAML_data,
+      "created_at": 1437407042,
+      "updated_at": 1437407042,
+      "description": "an example definition",
+      "name": "func test2"
+    }
+  ]
+}
+```
+
+## GET /v2.0/transforms/{transform_id}
+### Headers
+* X-Auth-Token (string, required) - Keystone auth token
+* Accept (string) - application/json
+
+### Request Body
+None.
+
+### Request Example
+```
+GET /v2.0/transforms/a794f22f-a231-47a0-8618-37f12b7a6f77 HTTP/1.1
+Host: 192.168.10.4:8082
+X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
+Accept: application/json
+Cache-Control: no-cache
+```
+### Response Body
+Returns a JSON object with a 'links' array of links and an 'elements' array of stream definition objects with the following fields:
+
+* id (string)
+* name (string)
+* description (string)
+* enabled (bool)
+* tenant_id (string)
+* deleted_at (datetime)
+* specification (string YAML data)
+* links - links to transform definition
+* created_at (datetime)
+* updated_at (datetime)
+
+### Response Body Example
+```
+{
+  "enabled": 0,
+  "id": "a794f22f-a231-47a0-8618-37f12b7a6f77",
+  "tenant_id": "d502aac2388b43f392c302b37a401ae5",
+  "created_at": 1437407042,
+  "specification": "YAML_data",
+  "links": [
+    {
+      "rel": "self",
+      "href": "http://192.168.10.4:8082/v2.0/transforms/a794f22f-a231-47a0-8618-37f12b7a6f77"
+    }
+  ],
+  "deleted_at": null,
+  "updated_at": 1437407042,
+  "description": "an example definition",
+  "name": "func test2"
+}
+```
+
+## DELETE /v2.0/transforms/{transform_id}
+### Headers
+* X-Auth-Token (string, required) - Keystone auth token
+* Accept (string) - application/json
+
+### Request Body
+None.
+
+### Request Example
+```
+DELETE /v2.0/transforms/a794f22f-a231-47a0-8618-37f12b7a6f77 HTTP/1.1
+Host: 192.168.10.4:8082
+X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
+Accept: application/json
+Cache-Control: no-cache
+```
+### Response Body
+None.
+
+### Response Body Example
+None.
+
+
+
+
+
 
 # License
 
