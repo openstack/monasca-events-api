@@ -12,7 +12,7 @@ kc = kafka.client.KafkaClient("192.168.10.4:9092")
 consumer = kafka.consumer.SimpleConsumer(kc,
                                          "Foo",
                                          "stream-notifications",
-                                         auto_commit=False)
+                                         auto_commit=True)
 
 for raw_event in consumer:
     event = json.loads(raw_event.message.value)
