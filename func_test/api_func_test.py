@@ -14,14 +14,14 @@
 # limitations under the License.
 
 import json
-import time
 
 import requests
 import yaml
 
 from monascaclient import ksclient
 
-events_url = "http://127.0.0.1:8082"
+# events_url = "http://127.0.0.1:8082"
+events_url = "http://192.168.10.4:8082"
 
 
 def token():
@@ -96,7 +96,7 @@ def test_stream_definition_post():
     body = {"fire_criteria": [{"event_type": "compute.instance.create.start"},
                               {"event_type": "compute.instance.create.end"}],
             "description": "provisioning duration",
-            "name": str(time.time()),
+            "name": "func_test_stream_def",
             "group_by": ["instance_id"],
             "expiration": 3000,
             "select": [{"traits": {"tenant_id": "406904"},
@@ -108,6 +108,7 @@ def test_stream_definition_post():
         url=events_url + "/v2.0/stream-definitions",
         data=json.dumps(body),
         headers=headers)
+
     assert response.status_code == 201
     print("POST /stream-definitions success")
 
@@ -133,7 +134,7 @@ def test_stream_definition_delete():
         data=json.dumps(body),
         headers=headers)
     stream_dict = json.loads(stream_resp.text)
-    stream_id = str(stream_dict[0]['elements']['id'])
+    stream_id = str(stream_dict['elements'][0]['id'])
     response = requests.delete(
         url=events_url + "/v2.0/stream-definitions/{}".format(
             stream_id),
@@ -189,8 +190,8 @@ def test_transforms():
     assert response.status_code == 204
     print("DELETE /transforms success")
 
-# test_stream_definition_post()
-# test_stream_definition_get()
-# test_stream_definition_delete()
-# test_events_get_all()
+test_stream_definition_post()
+test_stream_definition_get()
+test_stream_definition_delete()
+test_events_get_all()
 test_transforms()
