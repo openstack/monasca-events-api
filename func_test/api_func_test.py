@@ -166,17 +166,17 @@ def test_transforms():
 
     print("Test GET /transforms")
     body = {}
-
+    
     response = requests.get(
         url=events_url + "/v2.0/transforms",
         data=json.dumps(body),
         headers=headers)
     assert response.status_code == 200
     print("GET /transforms success")
-
+    
     print("Test DELETE /transforms")
     body = {}
-
+    
     response = requests.get(
         url=events_url + "/v2.0/transforms",
         data=json.dumps(body),

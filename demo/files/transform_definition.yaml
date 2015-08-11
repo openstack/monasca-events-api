@@ -1,0 +1,18 @@
+---
+- event_type: compute.instance.*
+  traits: &instance_traits
+    tenant_id:
+      fields: payload.tenant_id
+    service:
+      fields: publisher_id
+      plugin: split
+- event_type: compute.instance.exists
+  traits:
+    <<: *instance_traits
+    audit_period_beginning:
+      type: datetime
+      fields: payload.audit_period_beginning
+    audit_period_ending:
+      type: datetime
+      fields: payload.audit_period_ending
+

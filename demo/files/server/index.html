@@ -1,0 +1,70 @@
+<html>
+<head>
+<!-- D3.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+  <!-- jQuery -->  
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <!-- Plotly.js -->   
+  <script src="https://d14fo0winaifog.cloudfront.net/plotly-basic.js"></script>
+	<script>
+	$(document).ready(function(){
+		setInterval(function(){
+			$("#events").load('data.txt');
+		}, 3000);
+	});
+	</script>
+<style type="text/css">#graph {
+       -webkit-filter: grayscale(100%);
+}</style>
+</head>
+<body>
+
+<div id="graph"></div>
+<div id="events"></div>
+
+
+<script>
+setInterval(function(){
+	var x_axis = [];
+	x_axis.push(1);
+	var y_axis = [];
+	var data_point = 0;
+	var txtFile = new XMLHttpRequest();
+	txtFile.open("GET", "data.txt", true);
+	txtFile.onreadystatechange = function()
+	{
+	  if (txtFile.readyState === 4) {  // document is ready to parse.
+	    if (txtFile.status === 200) {  // file is found
+	      lines = txtFile.responseText.split("\n");
+	      for (i=0; i<lines.length; i++) {
+	      	data_point = JSON.parse(lines[i])["VM Create time"];
+	      	y_axis.push(data_point);
+	      	x_axis.push(i+1)
+	      }
+	    }
+	  }
+	}
+	var trace1 = {
+	  x: x_axis, 
+	  y: y_axis, 
+	  type: "scatter",
+	};
+	var layout = {
+		xaxis: {
+			title: "Sample Number"
+		},
+		yaxis: {
+			title: "VM Creation Time (ms)"
+		},
+		showlegend: false
+	}
+	var data = [trace1];
+	var graphOptions = {layout: layout, fileopt: "overwrite"};
+	Plotly.plot("graph", data, layout);
+	txtFile.send(null);
+}, 3000);
+</script>
+
+
+</body>
+</html>
