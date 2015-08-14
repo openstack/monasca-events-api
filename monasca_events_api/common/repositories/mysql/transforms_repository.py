@@ -17,8 +17,8 @@ from oslo_log import log
 from oslo_utils import timeutils
 
 from monasca_events_api.common.repositories.mysql import mysql_repository
-from monasca_events_api.common.repositories import transforms_repository
 from monasca_events_api.common.repositories import constants
+from monasca_events_api.common.repositories import transforms_repository
 
 LOG = log.getLogger(__name__)
 
@@ -81,21 +81,14 @@ class TransformsRepository(mysql_repository.MySQLRepository,
         tenant_id_clause = " and tenant_id = \"{}\"".format(tenant_id)
         transform_id_clause = " and id = \"{}\"".format(transform_id)
 
-        query = (base_query+
-                 tenant_id_clause+
+        query = (base_query +
+                 tenant_id_clause +
                  transform_id_clause)
 
         rows = self._execute_query(query, [])
         return rows
 
     def delete_transform(self, tenant_id, transform_id):
-        now = timeutils.utcnow()
-        base_query = "update event_transform set deleted_at = \"{}\"  where"\
-            .format(now)
-        tenant_id_clause = " tenant_id = \"{}\"".format(tenant_id)
-        transform_id_clause = " and id = \"{}\"".format(transform_id)
-
-        query = (base_query +
-                 tenant_id_clause +
-                 transform_id_clause)
-        self._execute_query(query, [])
+        self._execute_query("""delete from event_transform
+                               where tenant_id = %s and id = %s""",
+                            [tenant_id, transform_id])
