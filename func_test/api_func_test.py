@@ -20,8 +20,8 @@ import yaml
 
 from monascaclient import ksclient
 
-# events_url = "http://127.0.0.1:8082"
-events_url = "http://192.168.10.4:8082"
+# events_url = "http://127.0.0.1:8072"
+events_url = "http://192.168.10.4:8072"
 
 
 def token():
@@ -88,7 +88,7 @@ def test_stream_definition_post():
     body = {}
 
     notif_resp = requests.get(
-        url="http://192.168.10.4:8080/v2.0/notification-methods",
+        url="http://192.168.10.4:8070/v2.0/notification-methods",
         data=json.dumps(body), headers=headers)
     notif_dict = json.loads(notif_resp.text)
     action_id = str(notif_dict['elements'][0]['id'])
@@ -166,17 +166,17 @@ def test_transforms():
 
     print("Test GET /transforms")
     body = {}
-    
+
     response = requests.get(
         url=events_url + "/v2.0/transforms",
         data=json.dumps(body),
         headers=headers)
     assert response.status_code == 200
     print("GET /transforms success")
-    
+
     print("Test DELETE /transforms")
     body = {}
-    
+
     response = requests.get(
         url=events_url + "/v2.0/transforms",
         data=json.dumps(body),
