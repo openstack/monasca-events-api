@@ -94,7 +94,7 @@ Stream Definition Methods
 ### Request Example
 ```
 POST /v2.0/stream-definitions HTTP/1.1
-Host: 192.168.10.4:8082
+Host: 192.168.10.4:8072
 X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
 Accept: application/json
 Cache-Control: no-cache
@@ -111,7 +111,7 @@ None.
 ### Request Example
 ```
 GET /v2.0/stream-definitions HTTP/1.1
-Host: 192.168.10.4:8082
+Host: 192.168.10.4:8072
 X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
 Accept: application/json
 Cache-Control: no-cache
@@ -143,7 +143,7 @@ Returns a JSON object with a 'links' array of links and an 'elements' array of s
   "links": [
     {
       "rel": "self",
-      "href": "http://192.168.10.4:8082/v2.0/stream-definitions"
+      "href": "http://192.168.10.4:8072/v2.0/stream-definitions"
     }
   ],
   "elements": [
@@ -172,7 +172,7 @@ Returns a JSON object with a 'links' array of links and an 'elements' array of s
       "links": [
         {
           "rel": "self",
-          "href": "http://192.168.10.4:8082/v2.0/stream-definitions/242dd5f4-2ef6-11e5-8945-0800273a0b5b"
+          "href": "http://192.168.10.4:8072/v2.0/stream-definitions/242dd5f4-2ef6-11e5-8945-0800273a0b5b"
         }
       ],
       "updated_at": "2015-07-20T15:44:01",
@@ -202,7 +202,7 @@ None.
 ### Request Example
 ```
 GET /v2.0/stream-definitions/242dd5f4-2ef6-11e5-8945-0800273a0b5b HTTP/1.1
-Host: 192.168.10.4:8082
+Host: 192.168.10.4:8072
 X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
 Accept: application/json
 Cache-Control: no-cache
@@ -254,7 +254,7 @@ Returns a JSON object with a 'links' array of links and an 'elements' array of s
   "links": [
     {
       "rel": "self",
-      "href": "http://192.168.10.4:8082/v2.0/stream-definitions/242dd5f4-2ef6-11e5-8945-0800273a0b5b"
+      "href": "http://192.168.10.4:8072/v2.0/stream-definitions/242dd5f4-2ef6-11e5-8945-0800273a0b5b"
     }
   ],
   "updated_at": "2015-07-20T15:44:01",
@@ -281,7 +281,7 @@ None.
 ### Request Example
 ```
 DELETE /v2.0/stream-definitions/242dd5f4-2ef6-11e5-8945-0800273a0b5b HTTP/1.1
-Host: 192.168.10.4:8082
+Host: 192.168.10.4:8072
 X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
 Accept: application/json
 Cache-Control: no-cache
@@ -309,7 +309,7 @@ None.
 ### Request Example
 ```
 POST /v2.0/transforms/ HTTP/1.1
-Host: 192.168.10.4:8082
+Host: 192.168.10.4:8072
 X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
 Accept: application/json
 Cache-Control: no-cache
@@ -331,7 +331,7 @@ None.
 ### Request Example
 ```
 GET /v2.0/transforms/ HTTP/1.1
-Host: 192.168.10.4:8082
+Host: 192.168.10.4:8072
 X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
 Accept: application/json
 Cache-Control: no-cache
@@ -355,7 +355,7 @@ Returns a JSON object with a 'links' array of links and an 'elements' array of s
   "links": [
     {
       "rel": "self",
-      "href": "http://192.168.10.4:8082/v2.0/transforms"
+      "href": "http://192.168.10.4:8072/v2.0/transforms"
     }
   ],
   "elements": [
@@ -385,7 +385,7 @@ None.
 ### Request Example
 ```
 GET /v2.0/transforms/a794f22f-a231-47a0-8618-37f12b7a6f77 HTTP/1.1
-Host: 192.168.10.4:8082
+Host: 192.168.10.4:8072
 X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
 Accept: application/json
 Cache-Control: no-cache
@@ -415,7 +415,7 @@ Returns a JSON object with a 'links' array of links and an 'elements' array of s
   "links": [
     {
       "rel": "self",
-      "href": "http://192.168.10.4:8082/v2.0/transforms/a794f22f-a231-47a0-8618-37f12b7a6f77"
+      "href": "http://192.168.10.4:8072/v2.0/transforms/a794f22f-a231-47a0-8618-37f12b7a6f77"
     }
   ],
   "deleted_at": null,
@@ -436,7 +436,7 @@ None.
 ### Request Example
 ```
 DELETE /v2.0/transforms/a794f22f-a231-47a0-8618-37f12b7a6f77 HTTP/1.1
-Host: 192.168.10.4:8082
+Host: 192.168.10.4:8072
 X-Auth-Token: 2b8882ba2ec44295bf300aecb2caa4f7
 Accept: application/json
 Cache-Control: no-cache

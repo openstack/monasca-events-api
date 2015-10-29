@@ -72,5 +72,5 @@ if __name__ == '__main__':
     wsgi_app = (
         paste.deploy.loadapp('config:etc/events_api.ini',
                              relative_to=os.getcwd()))
-    httpd = simple_server.make_server('127.0.0.1', 8082, wsgi_app)
+    httpd = simple_server.make_server('127.0.0.1', 8072, wsgi_app)
     httpd.serve_forever()
