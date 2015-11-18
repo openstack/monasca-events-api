@@ -467,7 +467,7 @@ def get_query_stream_definition_fire_actions(stream_definition,
         if return_none:
             return None
         else:
-            return ''
+            return []
 
 
 def get_query_stream_definition_expire_actions(stream_definition,
