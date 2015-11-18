@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
 import uuid
 
 import MySQLdb
@@ -205,6 +206,116 @@ class StreamsRepository(mysql_repository.MySQLRepository,
                                              u"EXPIRE")
 
             return stream_definition_id
+
+    @mysql_repository.mysql_try_catch_block
+    def patch_stream_definition(self, tenant_id, stream_definition_id, name, description, select, group_by, fire_criteria, expiration,
+                                 fire_actions, expire_actions):
+
+        cnxn, cursor = self._get_cnxn_cursor_tuple()
+
+        with cnxn:
+            # Get the original alarm definition from the DB
+            parms = [tenant_id, stream_definition_id]
+
+            where_clause = """ where sd.tenant_id = %s
+                            and sd.id = %s"""
+            query = StreamsRepository.base_query + where_clause
+
+            cursor.execute(query, parms)
+
+            if cursor.rowcount < 1:
+                raise exceptions.DoesNotExistException
+
+            original_definition = cursor.fetchall()[0]
+
+            # Update that stream definition in the database
+
+            patch_query = """
+                update stream_definition
+                set name = %s,
+                    description = %s,
+                    select_by = %s,
+                    group_by = %s,
+                    fire_criteria = %s,
+                    expiration = %s,
+                    updated_at = %s
+                where tenant_id = %s and id = %s"""
+
+            if name is None:
+                new_name = original_definition['name']
+            else:
+                new_name = name.encode('utf8')
+
+            if description is None:
+                new_description = original_definition['description']
+            else:
+                new_description = description.encode('utf8')
+
+            if select is None:
+                new_select = original_definition['select_by']
+            else:
+                new_select = json.dumps(select).encode('utf8')
+
+            if group_by is None:
+                new_group_by = original_definition['group_by']
+            else:
+                new_group_by = json.dumps(group_by).encode('utf8')
+
+            if fire_criteria is None:
+                new_fire_criteria = original_definition['fire_criteria']
+            else:
+                new_fire_criteria = json.dumps(fire_criteria).encode('utf8')
+
+            if expiration is None:
+                new_expiration = original_definition['expiration']
+            else:
+                new_expiration = expiration
+
+            now = timeutils.utcnow()
+
+            update_parms = [
+                new_name,
+                new_description,
+                new_select,
+                new_group_by,
+                new_fire_criteria,
+                new_expiration,
+                now,
+                tenant_id,
+                stream_definition_id]
+
+            cursor.execute(patch_query, update_parms)
+
+            # Update the fire and expire actions in the database if defined
+
+            if fire_actions is not None:
+                self._delete_stream_actions(cursor, stream_definition_id,
+                                            u'FIRE')
+            if expire_actions is not None:
+                self._delete_stream_actions(cursor, stream_definition_id,
+                                            u'EXPIRE')
+
+            self._insert_into_stream_actions(cursor, stream_definition_id,
+                                             fire_actions,
+                                             u"FIRE")
+            self._insert_into_stream_actions(cursor, stream_definition_id,
+                                             expire_actions,
+                                             u"EXPIRE")
+
+            # Get updated entry from mysql
+            cursor.execute(query, parms)
+
+            return cursor.fetchall()[0]
+
+    def _delete_stream_actions(self, cursor, stream_definition_id, action_type):
+
+        query = """
+            delete
+            from stream_actions
+            where stream_definition_id = %s and action_type = %s
+            """
+        parms = [stream_definition_id, action_type.encode('utf8')]
+        cursor.execute(query, parms)
 
     def _insert_into_stream_actions(self, cursor, stream_definition_id,
                                     actions, action_type):

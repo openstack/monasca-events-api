@@ -46,3 +46,17 @@ class StreamsRepository(object):
     @abc.abstractmethod
     def get_stream_definitions(self, tenant_id, name, offset, limit):
         pass
+
+    @abc.abstractmethod
+    def patch_stream_definition(self,
+                                tenant_id,
+                                stream_definition_id,
+                                name,
+                                description,
+                                select,
+                                group_by,
+                                fire_criteria,
+                                expiration,
+                                fire_actions,
+                                expire_actions):
+        pass
