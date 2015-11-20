@@ -119,6 +119,47 @@ class StreamDefinitions(stream_definitions_api_v2.StreamDefinitionsV2API):
             res.body = helpers.dumpit_utf8(result)
             res.status = falcon.HTTP_200
 
+    def on_patch(self, req, res, stream_id):
+        helpers.validate_authorization(req, self._default_authorized_roles)
+
+        stream_definition = helpers.read_json_msg_body(req)
+
+        tenant_id = helpers.get_tenant_id(req)
+
+        name = get_query_stream_definition_name(stream_definition, return_none=True)
+        description = get_query_stream_definition_description(
+            stream_definition, return_none=True)
+        select = get_query_stream_definition_select(stream_definition, return_none=True)
+        if select:
+            for s in select:
+                if 'traits' in s:
+                    s['traits']['_tenant_id'] = tenant_id
+                else:
+                    s['traits'] = {'_tenant_id': tenant_id}
+
+        group_by = get_query_stream_definition_group_by(stream_definition, return_none=True)
+        fire_criteria = get_query_stream_definition_fire_criteria(stream_definition, return_none=True)
+        expiration = get_query_stream_definition_expiration(stream_definition, return_none=True)
+        fire_actions = get_query_stream_definition_fire_actions(
+            stream_definition, return_none=True)
+        expire_actions = get_query_stream_definition_expire_actions(
+            stream_definition, return_none=True)
+
+        result = self._stream_definition_patch(tenant_id,
+                                               stream_id,
+                                               name,
+                                               description,
+                                               select,
+                                               group_by,
+                                               fire_criteria,
+                                               expiration,
+                                               fire_actions,
+                                               expire_actions)
+
+        helpers.add_links_to_resource(result, req.uri)
+        res.body = helpers.dumpit_utf8(result)
+        res.status = falcon.HTTP_201
+
     def on_delete(self, req, res, stream_id):
         helpers.validate_authorization(req, self._default_authorized_roles)
         tenant_id = helpers.get_tenant_id(req)
@@ -193,6 +234,37 @@ class StreamDefinitions(stream_definitions_api_v2.StreamDefinitionsV2API):
              u'expire_actions': expire_actions,
              u'actions_enabled': u'true'}
         )
+
+        return result
+
+    @resource.resource_try_catch_block
+    def _stream_definition_patch(self, tenant_id, stream_definition_id, name,
+                                 description, select, group_by,
+                                 fire_criteria, expiration,
+                                 fire_actions, expire_actions):
+
+        stream_definition_row = (
+            self._stream_definitions_repo.patch_stream_definition(tenant_id,
+                                                                  stream_definition_id,
+                                                                  name,
+                                                                  description,
+                                                                  None if select is None else json.dumps(select),
+                                                                  None if group_by is None else json.dumps(group_by),
+                                                                  None if fire_criteria is None else json.dumps(
+                                                                      fire_criteria),
+                                                                  expiration,
+                                                                  fire_actions,
+                                                                  expire_actions))
+
+        self._send_stream_definition_updated_event(tenant_id,
+                                                   stream_definition_id,
+                                                   name,
+                                                   select,
+                                                   group_by,
+                                                   fire_criteria,
+                                                   expiration)
+
+        result = self._build_stream_definition_show_result(stream_definition_row)
 
         return result
 
@@ -300,15 +372,87 @@ class StreamDefinitions(stream_definitions_api_v2.StreamDefinitionsV2API):
         self.send_event(self.stream_definition_event_message_queue,
                         stream_definition_created_event_msg)
 
+    def _send_stream_definition_updated_event(self, tenant_id,
+                                              stream_definition_id,
+                                              name,
+                                              select,
+                                              group_by,
+                                              fire_criteria,
+                                              expiration):
 
-def get_query_stream_definition_name(stream_definition):
-    return (stream_definition['name'])
+        stream_definition_created_event_msg = {
+            u'stream-definition-updated': {u'tenant_id': tenant_id,
+                                           u'stream_definition_id':
+                                           stream_definition_id,
+                                           u'name': name,
+                                           u'select': select,
+                                           u'group_by': group_by,
+                                           u'fire_criteria': fire_criteria,
+                                           u'expiration': expiration}
+        }
+
+        self.send_event(self.stream_definition_event_message_queue,
+                        stream_definition_created_event_msg)
+
+
+def get_query_stream_definition_name(stream_definition, return_none=False):
+    if 'name' in stream_definition:
+        return stream_definition['name']
+    else:
+        if return_none:
+            return None
+        else:
+            return ''
 
 
 def get_query_stream_definition_description(stream_definition,
                                             return_none=False):
     if 'description' in stream_definition:
         return stream_definition['description']
+    else:
+        if return_none:
+            return None
+        else:
+            return ''
+
+
+def get_query_stream_definition_select(stream_definition,
+                                       return_none=False):
+    if 'select' in stream_definition:
+        return stream_definition['select']
+    else:
+        if return_none:
+            return None
+        else:
+            return ''
+
+
+def get_query_stream_definition_group_by(stream_definition,
+                                         return_none=False):
+    if 'group_by' in stream_definition:
+        return stream_definition['group_by']
+    else:
+        if return_none:
+            return None
+        else:
+            return []
+
+
+def get_query_stream_definition_fire_criteria(stream_definition,
+                                              return_none=False):
+    if 'fire_criteria' in stream_definition:
+        return stream_definition['fire_criteria']
+    else:
+        if return_none:
+            return None
+        else:
+            return ''
+
+
+def get_query_stream_definition_expiration(stream_definition,
+                                           return_none=False):
+    if 'expiration' in stream_definition:
+        return stream_definition['expiration']
     else:
         if return_none:
             return None
@@ -343,7 +487,7 @@ def get_query_stream_definition_actions_enabled(stream_definition,
                                                 return_none=False):
     try:
         if 'actions_enabled' in stream_definition:
-            return (stream_definition['actions_enabled'])
+            return stream_definition['actions_enabled']
         else:
             if return_none:
                 return None
