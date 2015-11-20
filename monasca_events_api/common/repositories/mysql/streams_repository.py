@@ -208,8 +208,8 @@ class StreamsRepository(mysql_repository.MySQLRepository,
             return stream_definition_id
 
     @mysql_repository.mysql_try_catch_block
-    def patch_stream_definition(self, tenant_id, stream_definition_id, name, description, select, group_by, fire_criteria, expiration,
-                                 fire_actions, expire_actions):
+    def patch_stream_definition(self, tenant_id, stream_definition_id, name, description, select, group_by,
+                                fire_criteria, expiration, fire_actions, expire_actions):
 
         cnxn, cursor = self._get_cnxn_cursor_tuple()
 
@@ -256,10 +256,18 @@ class StreamsRepository(mysql_repository.MySQLRepository,
             else:
                 new_select = json.dumps(select).encode('utf8')
 
+            if new_select != original_definition['select_by']:
+                msg = "select_by must not change".encode('utf8')
+                raise exceptions.InvalidUpdateException(msg)
+
             if group_by is None:
                 new_group_by = original_definition['group_by']
             else:
                 new_group_by = json.dumps(group_by).encode('utf8')
+
+            if new_group_by != original_definition['group_by']:
+                msg = "group_by must not change".encode('utf8')
+                raise exceptions.InvalidUpdateException(msg)
 
             if fire_criteria is None:
                 new_fire_criteria = original_definition['fire_criteria']
