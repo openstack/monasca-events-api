@@ -242,52 +242,40 @@ class StreamsRepository(mysql_repository.MySQLRepository,
                 where tenant_id = %s and id = %s"""
 
             if name is None:
-                new_name = original_definition['name']
-            else:
-                new_name = name.encode('utf8')
+                name = original_definition['name']
 
             if description is None:
-                new_description = original_definition['description']
-            else:
-                new_description = description.encode('utf8')
+                description = original_definition['description']
 
             if select is None:
-                new_select = original_definition['select_by']
-            else:
-                new_select = json.dumps(select).encode('utf8')
+                select = original_definition['select_by']
 
-            if new_select != original_definition['select_by']:
+            if select != original_definition['select_by']:
                 msg = "select_by must not change".encode('utf8')
                 raise exceptions.InvalidUpdateException(msg)
 
             if group_by is None:
-                new_group_by = original_definition['group_by']
-            else:
-                new_group_by = json.dumps(group_by).encode('utf8')
+                group_by = original_definition['group_by']
 
-            if new_group_by != original_definition['group_by']:
+            if group_by != original_definition['group_by']:
                 msg = "group_by must not change".encode('utf8')
                 raise exceptions.InvalidUpdateException(msg)
 
             if fire_criteria is None:
-                new_fire_criteria = original_definition['fire_criteria']
-            else:
-                new_fire_criteria = json.dumps(fire_criteria).encode('utf8')
+                fire_criteria = original_definition['fire_criteria']
 
             if expiration is None:
-                new_expiration = original_definition['expiration']
-            else:
-                new_expiration = expiration
+                expiration = original_definition['expiration']
 
             now = timeutils.utcnow()
 
             update_parms = [
-                new_name,
-                new_description,
-                new_select,
-                new_group_by,
-                new_fire_criteria,
-                new_expiration,
+                name,
+                description,
+                select,
+                group_by,
+                fire_criteria,
+                expiration,
                 now,
                 tenant_id,
                 stream_definition_id]

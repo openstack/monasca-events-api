@@ -32,3 +32,6 @@ class StreamDefinitionsV2API(object):
 
     def on_delete(self, req, res, stream_id):
         res.status = '501 Not Implemented'
+
+    def on_patch(self, req, res, stream_id):
+        res.status = '501 Not Implemented'

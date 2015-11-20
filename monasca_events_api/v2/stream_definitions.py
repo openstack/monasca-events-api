@@ -248,9 +248,10 @@ class StreamDefinitions(stream_definitions_api_v2.StreamDefinitionsV2API):
                                                                   stream_definition_id,
                                                                   name,
                                                                   description,
-                                                                  select,
-                                                                  group_by,
-                                                                  fire_criteria,
+                                                                  None if select is None else json.dumps(select),
+                                                                  None if group_by is None else json.dumps(group_by),
+                                                                  None if fire_criteria is None else json.dumps(
+                                                                      fire_criteria),
                                                                   expiration,
                                                                   fire_actions,
                                                                   expire_actions))
