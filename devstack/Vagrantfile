@@ -1,0 +1,88 @@
+require 'vagrant.rb'
+Vagrant.configure(2) do |config|
+
+  config.cache.scope = :box if Vagrant.has_plugin?("vagrant-cachier")
+  config.timezone.value = :host if Vagrant.has_plugin?('vagrant-timezone')
+  if Vagrant.has_plugin?('vagrant-proxyconf')
+    config.proxy.http = ENV['http_proxy'] if ENV['http_proxy']
+    config.proxy.https = ENV['https_proxy'] if ENV['https_proxy']
+    if ENV['no_proxy']
+        local_no_proxy = ",192.168.10.6,10.0.2.15"
+        config.proxy.no_proxy = ENV['no_proxy'] + local_no_proxy
+    end
+  end
+
+  config.ssh.forward_agent = true
+
+  config.vm.hostname = "devstack"
+  config.vm.box = "bento/ubuntu-16.04"
+  config.vm.network "private_network",ip:"192.168.10.6"
+  config.vm.synced_folder "~/", "/vagrant_home"
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = false
+    vb.memory = "12800"
+    vb.cpus = 4
+  end
+
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    sudo apt-get -y install git
+
+    if [ $http_proxy ]; then
+      git config --global url.https://git.openstack.org/.insteadOf git://git.openstack.org/
+      sudo git config --global url.https://git.openstack.org/.insteadOf git://git.openstack.org/
+
+      protocol=`echo $http_proxy | awk -F: '{print $1}'`
+      host=`echo $http_proxy | awk -F/ '{print $3}' | awk -F: '{print $1}'`
+      port=`echo $http_proxy | awk -F/ '{print $3}' | awk -F: '{print $2}'`
+
+      echo "<settings>
+              <proxies>
+                  <proxy>
+                      <id>$host</id>
+                      <active>true</active>
+                      <protocol>$protocol</protocol>
+                      <host>$host</host>
+                      <port>$port</port>
+                  </proxy>
+              </proxies>
+             </settings>" > ./maven_proxy_settings.xml
+
+      mkdir ~/.m2
+      cp ./maven_proxy_settings.xml ~/.m2/settings.xml
+
+      sudo mkdir /root/.m2
+      sudo cp ./maven_proxy_settings.xml /root/.m2/settings.xml
+    fi
+
+    git clone https://git.openstack.org/openstack-dev/devstack --branch master --depth 1
+    cd devstack
+    echo '[[local|localrc]]
+
+GIT_DEPTH=1
+DEST=/opt/stack
+USE_VENV=False
+
+SERVICE_HOST=192.168.10.6
+HOST_IP=192.168.10.6
+DATABASE_HOST=192.168.10.6
+MYSQL_HOST=192.168.10.6
+HOST_IP_IFACE=eth1
+
+MYSQL_PASSWORD=secretmysql
+DATABASE_PASSWORD=secretdatabase
+RABBIT_PASSWORD=secretrabbit
+ADMIN_PASSWORD=secretadmin
+SERVICE_PASSWORD=secretservice
+
+LOGFILE=$DEST/logs/stack.sh.log
+LOGDIR=$DEST/logs
+LOG_COLOR=False
+
+disable_all_services
+enable_service zookeeper rabbit mysql key tempest horizon
+
+' > local.conf
+    ./stack.sh
+  SHELL
+
+end

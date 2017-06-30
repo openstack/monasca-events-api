@@ -1,8 +1,8 @@
 [run]
 branch = True
-source = monasca
-omit = monasca/tests/*
+source = monasca_events_api
+omit = monasca_events_api/tests/*
 
 [report]
-ignore-errors = True
+ignore_errors = True
 

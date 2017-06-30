@@ -1,0 +1,6 @@
+---
+prelude: >
+other:
+  - |
+    Removed old monasca-events-api codebase. It was not maintained for longer
+    time and, by that reason, has become strongly obsolete.
