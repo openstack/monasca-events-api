@@ -1,0 +1,43 @@
+# Copyright 2017 Fujitsu LIMITED
+
+200:
+  ea_up: |
+    API is up and running. All peripherial components are accesible.
+204:
+  default: |
+    Normal response code, the request was successfully processed.
+  ea_up: |
+    API is up and running.
+
+400:
+  default: |
+    Bad request.
+401:
+  default: |
+    Unauthorized. User must authenticate before making a request.
+403:
+  default: |
+    Policy does not allow current user to do this operation.
+411:
+  default: |
+    Content-Length header was not found in request.
+413:
+  default: |
+    Sent body is too large to be processed.
+422:
+  default: |
+    Sent data could not be processed properly.
+  event_no_project:
+    Event property must have project_id field.
+  event_no_event: |
+    Event property must have event payload object.
+  bad_envelope: |
+    Failed to create an envelope.
+
+503:
+  default: |
+    The server is currently unable to handle the request due to a
+    temporary overload or scheduled maintenance. This will likely be
+    alleviated after some delay.
+  no_health: |
+    API is running but there are problems with peripheral components.

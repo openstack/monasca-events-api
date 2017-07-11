@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add documentation for the /v1.0/events edpoint.
+    An endpoint accepts requests from the peripheral agents.
+    Each request contains one or more events objects that are
+    processed by the events pipeline.

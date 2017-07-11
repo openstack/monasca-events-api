@@ -1,0 +1,16 @@
+# Copyright 2017 Fujitsu LIMITED
+
+# body params
+events:
+  description: |
+    Array containing the events.
+  in: body
+  required: true
+  type: array
+timestamp:
+  description: |
+    The timestamp recorded by the agent while sending the events object to the API.
+    The timestamp should include the timezone, e.g.: 2012-10-29T13:42:11Z+0200 .
+  in: body
+  required: true
+  type: string

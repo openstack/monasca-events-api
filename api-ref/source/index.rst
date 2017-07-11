@@ -15,8 +15,11 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-===========================
-Monasca Events Service APIs
-===========================
+==============================
+Monitoring Events Service API
+==============================
 
 .. rest_expand_all:
+
+.. include:: events.inc
+
