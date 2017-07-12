@@ -32,3 +32,4 @@ log/
 *config*.yml
 db/config.yml
 .coverage.*
+*.sample

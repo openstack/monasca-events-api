@@ -15,18 +15,16 @@
 import os
 import pkgutil
 
-from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import importutils
 
-CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
 def load_conf_modules():
     """Load all modules that contain configuration.
 
-    Method iterates over modules of :py:module:`monasca_log_api.conf`
+    Method iterates over modules of :py:mod:`monasca_events_api.conf`
     and imports only those that contain following methods:
 
     - list_opts (required by oslo_config.genconfig)
@@ -62,7 +60,7 @@ def _list_module_names():
     return module_names
 
 
-def register_opts():
+def register_opts(conf):
     """Register all conf modules opts.
 
     This method allows different modules to register
@@ -70,7 +68,7 @@ def register_opts():
 
     """
     for mod in load_conf_modules():
-        mod.register_opts(CONF)
+        mod.register_opts(conf)
 
 
 def list_opts():

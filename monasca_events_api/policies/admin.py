@@ -12,7 +12,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import pbr.version
+from oslo_policy import policy
 
-version_info = pbr.version.VersionInfo('monasca-events-app')
-version_str = version_info.version_string()
+
+admin_rules = [
+    policy.DocumentedRuleDefault(
+        name='admin_required',
+        check_str='role:admin or is_admin:1',
+        description='Admin role',
+        operations=[{'path': '/', 'method': 'POST'}]
+    ),
+]
+
+
+def list_rules():
+    """List policy rules for admin access."""
+    return admin_rules

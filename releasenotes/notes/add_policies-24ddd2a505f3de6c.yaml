@@ -1,0 +1,9 @@
+---
+
+features:
+  - |
+    Initial implementation of oslo.policies.
+
+other:
+  - |
+    Add posibility to generate documentation with oslo-config-generator.

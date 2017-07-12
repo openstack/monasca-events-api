@@ -12,7 +12,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import pbr.version
+from oslo_policy import policy
 
-version_info = pbr.version.VersionInfo('monasca-events-app')
-version_str = version_info.version_string()
+
+agent_policies = [
+    policy.DocumentedRuleDefault(
+        name='events_api:agent_required',
+        check_str='role:monasca_events_agent',
+        description='Send events to api',
+        operations=[{'path': '/v1.0/events', 'method': 'POST'}]
+    )
+]
+
+
+def list_rules():
+    """List policies rules for agent access."""
+    return agent_policies

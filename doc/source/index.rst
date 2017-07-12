@@ -45,4 +45,3 @@ any specific prior release.
    :maxdepth: 1
 
    glossary
-

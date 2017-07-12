@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# monasca-events-api documentation build configuration file, created by
+# monasca-events-app documentation build configuration file, created by
 # sphinx-quickstart on Wed Nov 18 12:02:03 2015.
 #
 # This file is execfile()d with the current directory set to its
@@ -19,7 +19,9 @@ from monasca_events_api.version import version_info
 
 sys.path = [
     os.path.abspath('../..'),
-    os.path.abspath('../../bin')
+    os.path.abspath('../../bin'),
+    os.path.abspath('./'),
+    os.path.abspath('../')
 ] + sys.path
 
 # -- General configuration ------------------------------------------------
@@ -37,24 +39,29 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'oslo_config.sphinxconfiggen',
+    'oslo_policy.sphinxpolicygen',
     'oslo_config.sphinxext',
     'openstackdocstheme',
 ]
 
 # geeneral information about project
 repository_name = u'openstack/monasca-events-api'
-project = u'Monasca Events Dev Docs'
-version = version_info.version_string()
-release = version_info.release_string()
-bug_project = u'monasca-events-api'
-bug_tag = u'doc'
+project = u'monasca'
+version = version_info.canonical_version_string()
+release = version_info.version_string_with_vcs()
+bug_project = u'866'
+bug_tag = u''
 copyright = u'2017-present, OpenStack Foundation'
 author = u'OpenStack Foundation'
 
 # sample config
 config_generator_config_file = [
-    ('config-generator/monasca-events-api.conf', '_static/events-api')
+    ('config-generator/config.conf', '_static/events-api')
 ]
+
+# sample policy file
+policy_generator_config_file = 'config-generator/policy.conf'
+sample_policy_basename = '_static/events-api'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -194,7 +201,7 @@ html_use_modindex = True
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'monasca-events-apidoc'
+htmlhelp_basename = 'MonitoringEventsApiDoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -216,8 +223,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'monasca-events-api.tex', u'monasca-events-api Documentation',
-   u'Openstack Foundation \\textless{}monasca@lists.launchpad.net\\textgreater{}', 'manual'),
+    (master_doc, 'MonitoringEventsApi.tex', u'Monasca Events Documentation',
+     [author], 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -246,37 +253,12 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'monasca-events-api', u'monasca-events-api Documentation',
+    (master_doc, 'monitoringeventsapi', u'Monasca Events Documentation',
      [author], 1)
 ]
 
 # If true, show URL addresses after external links.
 #man_show_urls = False
-
-
-# -- Options for Texinfo output -------------------------------------------
-
-# Grouping the document tree into Texinfo files. List of tuples
-# (source start file, target name, title, author,
-#  dir menu entry, description, category)
-texinfo_documents = [
-  (master_doc, 'monasca-events-api', u'monasca-events-api Documentation',
-   author, 'monasca-events-api', 'Rest-API to collect events from your cloud.',
-   'Miscellaneous'),
-]
-
-# Documents to append as an appendix to all manuals.
-#texinfo_appendices = []
-
-# If false, no module index is generated.
-#texinfo_domain_indices = True
-
-# How to display URL addresses: 'footnote', 'no', or 'inline'.
-#texinfo_show_urls = 'footnote'
-
-# If true, do not generate a @detailmenu in the "Top" node's menu.
-#texinfo_no_detailmenu = False
-
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://doc.python.org/': None}

@@ -12,12 +12,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_config import cfg
 from oslo_log import log
+from oslo_policy import opts as policy_opts
 
 from monasca_events_api import conf
 from monasca_events_api import version
 
-CONF = conf.CONF
+CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 _CONF_LOADED = False
@@ -39,15 +41,17 @@ def parse_args():
     log.set_defaults()
     log.register_options(CONF)
 
-    CONF(prog='events-api',
+    CONF(args=[],
+         prog='events-app',
          project='monasca',
          version=version.version_str,
          description='RESTful API to collect events from cloud')
 
     log.setup(CONF,
-              product_name='monasca-events-api',
+              product_name='monasca-events-app',
               version=version.version_str)
 
-    conf.register_opts()
+    conf.register_opts(CONF)
+    policy_opts.set_defaults(CONF)
 
     _CONF_LOADED = True
