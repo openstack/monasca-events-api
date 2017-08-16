@@ -12,19 +12,17 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_policy import policy
 
+def prepare_message_to_sent(body):
+    """prepare_message_to_sent convert message to proper format,
 
-agent_policies = [
-    policy.DocumentedRuleDefault(
-        name='events_api:agent_required',
-        check_str='role:monasca or role:admin',
-        description='Send events to api',
-        operations=[{'path': '/v1.0/events', 'method': 'POST'}]
-    )
-]
-
-
-def list_rules():
-    """List policies rules for agent access."""
-    return agent_policies
+    :param dict body: original request body
+    :return dict: prepared message for publish to kafka
+    """
+    timestamp = body['timestamp']
+    final_body = []
+    for events in body['events']:
+        ev = events['event'].copy()
+        ev.update({'timestamp': timestamp})
+        final_body.append(ev)
+    return final_body

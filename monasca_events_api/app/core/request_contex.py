@@ -12,28 +12,27 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import falcon
-from oslo_log import log
+from oslo_context import context
 
-from monasca_events_api.app.core import request_contex
 from monasca_events_api import policy
 
-LOG = log.getLogger(__name__)
 
+class RequestContext(context.RequestContext):
+    """RequestContext.
 
-class Request(falcon.Request):
-    """Variation of falcon. Request with context.
-
-    Following class enhances :py:class:`falcon.Request` with
-    :py:class:`context.CustomRequestContext`
+    RequestContext is customized version of
+    :py:class:oslo_context.context.RequestContext.
     """
 
-    def __init__(self, env, options=None):
-        """Init an Request class."""
-        super(Request, self).__init__(env, options)
-        self.context = \
-            request_contex.RequestContext.from_environ(self.env)
-        self.is_admin = policy.check_is_admin(self.context)
+    def to_policy_values(self):
+        pl = super(RequestContext, self).to_policy_values()
+        pl['is_admin'] = self.is_admin
+        return pl
 
     def can(self, action, target=None):
-        return self.context.can(action, target)
+
+        if target is None:
+            target = {'project_id': self.project_id,
+                      'user_id': self.user_id}
+
+        return policy.authorize(self, action=action, target=target)

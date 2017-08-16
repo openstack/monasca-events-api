@@ -12,19 +12,29 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_policy import policy
+import six
+
+from oslo_log import log
+from voluptuous import Any
+from voluptuous import Required
+from voluptuous import Schema
 
 
-agent_policies = [
-    policy.DocumentedRuleDefault(
-        name='events_api:agent_required',
-        check_str='role:monasca or role:admin',
-        description='Send events to api',
-        operations=[{'path': '/v1.0/events', 'method': 'POST'}]
-    )
-]
+LOG = log.getLogger(__name__)
 
 
-def list_rules():
-    """List policies rules for agent access."""
-    return agent_policies
+default_schema = Schema({Required("events"): Any(list, dict),
+                         Required("timestamp"):
+                             Any(str, unicode) if six.PY2 else str})
+
+
+def validate_body(request_body):
+    """Validate body.
+
+     Method validate if body contain all required fields,
+     and check if all value have correct type.
+
+
+    :param request_body: body
+    """
+    default_schema(request_body)

@@ -12,19 +12,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_policy import policy
+import falcon
+
+from monasca_events_api.app.model import envelope
 
 
-agent_policies = [
-    policy.DocumentedRuleDefault(
-        name='events_api:agent_required',
-        check_str='role:monasca or role:admin',
-        description='Send events to api',
-        operations=[{'path': '/v1.0/events', 'method': 'POST'}]
+def events_envelope_exception_handlet(ex, req, resp, params):
+    raise falcon.HTTPUnprocessableEntity(
+        title='Failed to create Envelope',
+        description=ex.message
     )
-]
 
 
-def list_rules():
-    """List policies rules for agent access."""
-    return agent_policies
+def register_error_handler(app):
+    app.add_error_handler(envelope.EventsEnvelopeException,
+                          events_envelope_exception_handlet)

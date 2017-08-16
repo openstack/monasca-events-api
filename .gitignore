@@ -7,6 +7,7 @@ cover
 .coverage
 *.egg
 *.egg-info
+.stestr
 .testrepository
 .tox
 AUTHORS
@@ -14,7 +15,7 @@ ChangeLog
 MANIFEST
 monasca.log
 
-
+*.log
 *.swp
 *.iml
 .DS_Store

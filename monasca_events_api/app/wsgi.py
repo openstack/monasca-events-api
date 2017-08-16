@@ -12,19 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_policy import policy
+"""
+Use this file for deploying the API under mod_wsgi.
+"""
 
+from paste import deploy
 
-agent_policies = [
-    policy.DocumentedRuleDefault(
-        name='events_api:agent_required',
-        check_str='role:monasca or role:admin',
-        description='Send events to api',
-        operations=[{'path': '/v1.0/events', 'method': 'POST'}]
-    )
-]
-
-
-def list_rules():
-    """List policies rules for agent access."""
-    return agent_policies
+base_dir = '/etc/monasca/'
+conf = '{0}event-api-paste.ini'.format(base_dir)
+application = deploy.loadapp('config:{0}'.format(conf))

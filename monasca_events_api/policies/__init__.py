@@ -28,8 +28,7 @@ def load_policy_modules():
     Method iterates over modules of :py:mod:`monasca_events_api.policies`
     and imports only those that contain following methods:
 
-    - list_opts (required by oslo_config.genconfig)
-    - register_opts (required by :py:currentmodule:)
+    - list_rules
 
     """
     for modname in _list_module_names():

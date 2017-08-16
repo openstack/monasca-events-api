@@ -34,12 +34,18 @@ function install_events_api {
     fi
 }
 
+function create_monasca_events_cache_dir {
+    sudo install -m 700 -d -o $STACK_USER $MONASCA_EVENTS_API_CACHE_DIR
+}
+
 function configure_events_api {
     if is_events_api_enabled; then
         echo_summary "Configuring Events Api"
 
         # Put config files in ``$MONASCA_EVENTS_API_CONF_DIR`` for everyone to find
         sudo install -d -o $STACK_USER $MONASCA_EVENTS_API_CONF_DIR
+
+        create_monasca_events_cache_dir
 
         # ensure fresh installation of configuration files
         rm -rf $MONASCA_EVENTS_API_CONF $MONASCA_EVENTS_API_PASTE $MONASCA_EVENTS_API_LOGGING_CONF
