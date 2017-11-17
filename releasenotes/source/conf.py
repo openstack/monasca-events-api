@@ -11,8 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from monasca_events_api.version import version_info
-
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -40,9 +38,11 @@ master_doc = 'index'
 
 # General information about the project.
 repository_name = u'openstack/monasca-events-api'
-project = u'Openstack Monitoring Release Notes'
-version = version_info.canonical_version_string()
-release = version_info.version_string_with_vcs()
+project = u'OpenStack Monitoring Release Notes'
+# Release notes do not need a version number in the title, they
+# cover multiple releases.
+version = ''
+release = ''
 bug_project = u'866'
 bug_tag = u''
 copyright = u'2014-present, OpenStack Foundation'
