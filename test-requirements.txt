@@ -14,6 +14,7 @@ mock>=2.0 # BSD
 oslotest>=1.10.0 # Apache-2.0
 os-testr>=0.8.0 # Apache-2.0
 simplejson>=2.2.0 # MIT
+voluptuous>=0.8.9 # BSD License
 
 # documentation
 doc8 # Apache-2.0

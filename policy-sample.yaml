@@ -1,0 +1,7 @@
+# Admin role
+# POST  /
+#"admin_required": "role:admin or is_admin:1"
+
+# Send events to api
+# POST  /v1.0/events
+#"events_api:agent_required": "role:monasca_events_agent"

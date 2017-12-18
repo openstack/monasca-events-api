@@ -15,10 +15,12 @@
 import os
 import pkgutil
 
+from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import importutils
 
 LOG = log.getLogger(__name__)
+CONF = cfg.CONF
 
 
 def load_conf_modules():

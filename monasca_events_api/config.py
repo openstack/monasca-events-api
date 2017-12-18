@@ -42,13 +42,13 @@ def parse_args():
     log.register_options(CONF)
 
     CONF(args=[],
-         prog='events-app',
+         prog='events-api',
          project='monasca',
          version=version.version_str,
          description='RESTful API to collect events from cloud')
 
     log.setup(CONF,
-              product_name='monasca-events-app',
+              product_name='monasca-events-api',
               version=version.version_str)
 
     conf.register_opts(CONF)

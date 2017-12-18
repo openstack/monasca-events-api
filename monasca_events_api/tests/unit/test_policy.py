@@ -82,7 +82,7 @@ class TestPolicyCase(base.BaseTestCase):
             )
         )
         self.assertRaises(os_policy.PolicyNotRegistered, policy.authorize,
-                          ctx, action, {})
+                          ctx.context, action, {})
 
     def test_authorize_bad_action_throws(self):
         action = "example:denied"
@@ -97,7 +97,7 @@ class TestPolicyCase(base.BaseTestCase):
             )
         )
         self.assertRaises(os_policy.PolicyNotAuthorized, policy.authorize,
-                          ctx, action, {})
+                          ctx.context, action, {})
 
     def test_authorize_bad_action_no_exception(self):
         action = "example:denied"
@@ -111,7 +111,7 @@ class TestPolicyCase(base.BaseTestCase):
                 }
             )
         )
-        result = policy.authorize(ctx, action, {}, False)
+        result = policy.authorize(ctx.context, action, {}, False)
         self.assertFalse(result)
 
     def test_authorize_good_action(self):
@@ -126,7 +126,7 @@ class TestPolicyCase(base.BaseTestCase):
                 }
             )
         )
-        result = policy.authorize(ctx, action, False)
+        result = policy.authorize(ctx.context, action, False)
         self.assertTrue(result)
 
     def test_ignore_case_role_check(self):
@@ -143,7 +143,9 @@ class TestPolicyCase(base.BaseTestCase):
                 }
             )
         )
-        self.assertTrue(policy.authorize(admin_context, lowercase_action,
+        self.assertTrue(policy.authorize(admin_context.context,
+                                         lowercase_action,
                                          {}))
-        self.assertTrue(policy.authorize(admin_context, uppercase_action,
+        self.assertTrue(policy.authorize(admin_context.context,
+                                         uppercase_action,
                                          {}))

@@ -14,6 +14,8 @@
 
 import os
 
+import falcon
+from falcon import testing
 import fixtures
 from oslo_config import cfg
 from oslo_config import fixture as config_fixture
@@ -22,6 +24,7 @@ from oslo_log.fixture import logging_error as log_fixture
 from oslo_serialization import jsonutils
 from oslotest import base
 
+from monasca_events_api.app.core import request
 from monasca_events_api import config
 from monasca_events_api import policies
 from monasca_events_api import policy
@@ -93,3 +96,20 @@ class PolicyFixture(fixtures.Fixture):
         for rule in policies.list_rules():
             if rule.name not in rules:
                 rules[rule.name] = rule.check_str
+
+
+class MockedApi(falcon.API):
+    """Mocked API.
+
+    Subclasses :py:class:`falcon.API` in order to overwrite
+    request_type property with custom :py:class:`request.Request`
+    """
+    def __init__(self):
+        super(MockedApi, self).__init__(
+            media_type=falcon.DEFAULT_MEDIA_TYPE,
+            request_type=request.Request
+        )
+
+
+class BaseApiTestCase(BaseTestCase, testing.TestBase):
+    api_class = MockedApi

@@ -14,5 +14,5 @@
 
 import pbr.version
 
-version_info = pbr.version.VersionInfo('monasca-events-app')
+version_info = pbr.version.VersionInfo('monasca-events-api')
 version_str = version_info.version_string()

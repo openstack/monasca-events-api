@@ -12,19 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_policy import policy
 
-
-agent_policies = [
-    policy.DocumentedRuleDefault(
-        name='events_api:agent_required',
-        check_str='role:monasca or role:admin',
-        description='Send events to api',
-        operations=[{'path': '/v1.0/events', 'method': 'POST'}]
-    )
-]
-
-
-def list_rules():
-    """List policies rules for agent access."""
-    return agent_policies
+class EventsEnvelopeException(Exception):
+    pass
