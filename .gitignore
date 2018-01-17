@@ -34,3 +34,4 @@ log/
 db/config.yml
 .coverage.*
 *.sample
+.venv
