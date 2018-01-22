@@ -12,9 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from monasca_common.policy import policy_engine as policy
 from oslo_context import context
 
-from monasca_events_api import policy
+from monasca_events_api import policies
+
+policy.POLICIES = policies
 
 
 class RequestContext(context.RequestContext):
