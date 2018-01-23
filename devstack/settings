@@ -63,6 +63,8 @@ ELASTICSEARCH_DATA_DIR=$DATA_DIR/elasticsearch
 
 KAFKA_SERVICE_HOST=${KAFKA_SERVICE_HOST:-${SERVICE_HOST}}
 KAFKA_SERVICE_PORT=${KAFKA_SERVICE_PORT:-9092}
+# Apache Kafka 0.9.0.1 is only available in Apache Archives
+APACHE_ARCHIVES=${APACHE_ARCHIVES:-"https://archive.apache.org/dist/"}
 
 # configuration
 MONASCA_EVENTS_LOG_DIR=${MONASCA_EVENTS_LOG_DIR:-/var/log/monasca}
