@@ -13,7 +13,6 @@
       - openstack/tempest
     voting: false
 - project:
-    name: openstack/monasca-events-api
     check:
       jobs:
         - monascaevents-tempest-events-base
