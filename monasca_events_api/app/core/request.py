@@ -13,12 +13,14 @@
 # under the License.
 
 import falcon
+from monasca_common.policy import policy_engine as policy
 from oslo_log import log
 
 from monasca_events_api.app.core import request_contex
-from monasca_events_api import policy
+from monasca_events_api import policies
 
 LOG = log.getLogger(__name__)
+policy.POLICIES = policies
 
 
 class Request(falcon.Request):

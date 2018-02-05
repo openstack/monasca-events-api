@@ -17,6 +17,7 @@ import os
 import falcon
 from falcon import testing
 import fixtures
+from monasca_common.policy import policy_engine as policy
 from oslo_config import cfg
 from oslo_config import fixture as config_fixture
 from oslo_context import fixture as oc_fixture
@@ -27,9 +28,10 @@ from oslotest import base
 from monasca_events_api.app.core import request
 from monasca_events_api import config
 from monasca_events_api import policies
-from monasca_events_api import policy
+
 
 CONF = cfg.CONF
+policy.POLICIES = policies
 
 
 class ConfigFixture(config_fixture.Config):
