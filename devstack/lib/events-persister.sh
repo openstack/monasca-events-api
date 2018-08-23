@@ -25,9 +25,7 @@ function is_events_persister_enabled {
 
 function install_events_persister {
     if is_events_persister_enabled; then
-        echo_summary "Installing Events Persister"
-        git_clone $MONASCA_EVENTS_PERSISTER_REPO $MONASCA_EVENTS_PERSISTER_DIR $MONASCA_EVENTS_PERSISTER_BRANCH
-        setup_develop ${MONASCA_EVENTS_PERSISTER_DIR}
+        echo_summary "Installing Events Persister dependencies"
         pip_install "elasticsearch>=2.0.0,<3.0.0"
     fi
 }
@@ -50,6 +48,7 @@ function configure_events_persister {
         iniset "$MONASCA_EVENTS_PERSISTER_CONF" zookeeper partition_interval_recheck_seconds 15
         iniset "$MONASCA_EVENTS_PERSISTER_CONF" kafka num_processors 0
         iniset "$MONASCA_EVENTS_PERSISTER_CONF" kafka_events num_processors 1
+        iniset "$MONASCA_EVENTS_PERSISTER_CONF" kafka_events enabled True
         iniset "$MONASCA_EVENTS_PERSISTER_CONF" kafka_events uri 127.0.0.1:9092
         iniset "$MONASCA_EVENTS_PERSISTER_CONF" elasticsearch hosts ${ELASTICSEARCH_BIND_HOST}:${ELASTICSEARCH_BIND_PORT}
 

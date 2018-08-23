@@ -27,10 +27,17 @@ function install_events_api {
     if is_events_api_enabled; then
         echo_summary "Installing Events Api"
         git_clone $MONASCA_EVENTS_API_REPO $MONASCA_EVENTS_API_DIR $MONASCA_EVENTS_API_BRANCH
-        setup_develop ${MONASCA_EVENTS_API_DIR}
-
+        setup_develop $MONASCA_EVENTS_API_DIR
+        install_monasca_common
         install_keystonemiddleware
-        pip_install gunicorn
+        pip_install uwsgi
+    fi
+}
+
+function install_monasca_common {
+    if use_library_from_git "monasca-common"; then
+        git_clone_by_name "monasca-common"
+        setup_dev_lib "monasca-common"
     fi
 }
 
@@ -44,6 +51,7 @@ function configure_events_api {
 
         # Put config files in ``$MONASCA_EVENTS_API_CONF_DIR`` for everyone to find
         sudo install -d -o $STACK_USER $MONASCA_EVENTS_API_CONF_DIR
+        sudo install -d -o $STACK_USER $MONASCA_EVENTS_LOG_DIR
 
         create_monasca_events_cache_dir
 
@@ -67,17 +75,24 @@ function configure_events_api {
         iniset "$MONASCA_EVENTS_API_CONF" keystone_authtoken project_name "admin"
         iniset "$MONASCA_EVENTS_API_CONF" keystone_authtoken password $ADMIN_PASSWORD
 
-        # configure log-api-paste.ini
+        # configure events-api-paste.ini
         iniset "$MONASCA_EVENTS_API_PASTE" server:main bind $MONASCA_EVENTS_API_SERVICE_HOST:$MONASCA_EVENTS_API_SERVICE_PORT
         iniset "$MONASCA_EVENTS_API_PASTE" server:main chdir $MONASCA_EVENTS_API_DIR
         iniset "$MONASCA_EVENTS_API_PASTE" server:main workers $API_WORKERS
+
+        rm -rf $MONASCA_EVENTS_API_UWSGI_CONF
+        MONASCA_EVENTS_API_WSGI=/usr/local/bin/monasca-events-api-wsgi
+        install -m 600 $MONASCA_EVENTS_API_DIR/etc/monasca/events-api-uwsgi.ini $MONASCA_EVENTS_API_UWSGI_CONF
+        write_uwsgi_config "$MONASCA_EVENTS_API_UWSGI_CONF" "$MONASCA_EVENTS_API_WSGI" "/events"
+
     fi
 }
+
 
 function start_events_api {
     if is_events_api_enabled; then
         echo_summary "Starting Events Api"
-        run_process "monasca-events-api" "/usr/local/bin/gunicorn --paste $MONASCA_EVENTS_API_PASTE"
+        run_process "monasca-events-api" "/usr/local/bin/uwsgi --ini $MONASCA_EVENTS_API_UWSGI_CONF"
     fi
 }
 

@@ -18,14 +18,6 @@
 _XTRACE_UTILS=$(set +o | grep xtrace)
 set +o xtrace
 
-function find_nearest_apache_mirror {
-    if [ -z $APACHE_MIRROR ]; then
-        local mirror;
-        mirror=`curl -s 'https://www.apache.org/dyn/closer.cgi?as_json=1' | jq --raw-output '.preferred'`
-        APACHE_MIRROR=$mirror
-    fi
-}
-
 # download_file
 #  $1 - url to download
 #  $2 - location where to save url to
@@ -69,7 +61,6 @@ function configure_log_dir {
 
     sudo mkdir -p $logdir
     sudo chmod -R 0777 $logdir
-
 }
 
 $_XTRACE_UTILS

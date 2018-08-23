@@ -18,6 +18,14 @@ Use this file for deploying the API under mod_wsgi.
 
 from paste import deploy
 
-base_dir = '/etc/monasca/'
-conf = '{0}event-api-paste.ini'.format(base_dir)
-application = deploy.loadapp('config:{0}'.format(conf))
+application = None
+
+
+def main():
+    base_dir = '/etc/monasca/'
+    conf = '{0}events-api-paste.ini'.format(base_dir)
+    app = deploy.loadapp('config:{0}'.format(conf))
+    return app
+
+if __name__ == '__main__' or __name__.startswith('_mod_wsgi'):
+    application = main()
