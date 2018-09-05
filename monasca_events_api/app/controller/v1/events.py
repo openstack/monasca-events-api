@@ -1,4 +1,4 @@
-# Copyright 2017 FUJITSU LIMITED
+# Copyright 2018 FUJITSU LIMITED
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -53,9 +53,10 @@ class Events(object):
         try:
             request_body = helpers.read_json_msg_body(req)
             req.can(policy_action)
+            project_id = req.project_id
             body_validation.validate_body(request_body)
             messages = prepare_message_to_sent(request_body)
-            self._processor.send_message(messages)
+            self._processor.send_message(messages, event_project_id=project_id)
             res.status = falcon.HTTP_200
         except MultipleInvalid as ex:
             LOG.error('Entire bulk package was rejected, unsupported body')

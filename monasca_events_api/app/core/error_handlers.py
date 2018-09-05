@@ -1,4 +1,4 @@
-# Copyright 2017 FUJITSU LIMITED
+# Copyright 2018 FUJITSU LIMITED
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -25,5 +25,5 @@ def events_envelope_exception_handlet(ex, req, resp, params):
 
 
 def register_error_handler(app):
-    app.add_error_handler(envelope.EventsEnvelopeException,
+    app.add_error_handler(envelope.EventEnvelopeException,
                           events_envelope_exception_handlet)

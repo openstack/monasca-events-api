@@ -1,4 +1,4 @@
-# Copyright 2017 FUJITSU LIMITED
+# Copyright 2018 FUJITSU LIMITED
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -24,5 +24,6 @@ def prepare_message_to_sent(body):
     for events in body['events']:
         ev = events['event'].copy()
         ev.update({'timestamp': timestamp})
+        ev.update({'dimensions': events.get('dimensions')})
         final_body.append(ev)
     return final_body
