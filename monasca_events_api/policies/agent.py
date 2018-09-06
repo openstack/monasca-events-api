@@ -18,7 +18,7 @@ from oslo_policy import policy
 agent_policies = [
     policy.DocumentedRuleDefault(
         name='events_api:agent_required',
-        check_str='role:monasca or role:admin',
+        check_str='role:monasca-user or role:admin',
         description='Send events to api',
         operations=[{'path': '/v1.0/events', 'method': 'POST'}]
     )

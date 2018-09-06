@@ -49,7 +49,7 @@ class TestEventsApi(base.BaseApiTestCase):
             method='POST',
             headers={
                 'Content-Type': 'application/json',
-                'X_ROLES': 'monasca'
+                'X_ROLES': 'monasca-user'
             },
             body=body
         )
@@ -69,7 +69,7 @@ class TestEventsApi(base.BaseApiTestCase):
             method='POST',
             headers={
                 'Content-Type': 'application/json',
-                'X_ROLES': 'monasca'
+                'X_ROLES': 'monasca-user'
             },
             body=body
         )
@@ -83,7 +83,7 @@ class TestEventsApi(base.BaseApiTestCase):
             method='POST',
             headers={
                 'Content-Type': 'application/json',
-                'X_ROLES': 'monasca'
+                'X_ROLES': 'monasca-user'
             },
             body=''
         )
@@ -104,7 +104,7 @@ class TestEventsApi(base.BaseApiTestCase):
             method='POST',
             headers={
                 'Content-Type': 'application/json',
-                'X_ROLES': 'monasca'
+                'X_ROLES': 'monasca-user'
             },
             body=json.dumps(body)
         )
@@ -119,7 +119,7 @@ class TestEventsApi(base.BaseApiTestCase):
             method='POST',
             headers={
                 'Content-Type': 'application/json',
-                'X_ROLES': 'monasca'
+                'X_ROLES': 'monasca-user'
             },
             body=json.dumps(body)
         )
