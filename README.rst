@@ -29,7 +29,7 @@ in the HACKING.rst file, and pass all unit tests as well as linters.
 
 Further developer focused documentation is available at:
 
-* `Monasca-events-api <https://docs.openstack.org/developer/monasca-events-api/>`_
+* `Monasca-events-api <https://docs.openstack.org/monasca-events-api/latest/>`_
 
 Operators
 ---------
