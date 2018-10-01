@@ -41,7 +41,7 @@ class TestBodyValidation(base.BaseTestCase):
         self.assertRaises(MultipleInvalid, validate_body, body)
 
     def test_correct_body(self):
-        body = [{'events': [], 'timestamp': '2012-10-29T13:42:11Z+0200'},
+        body = [{'events': [], 'timestamp': u'2012-10-29T13:42:11Z+0200'},
                 {'events': {}, 'timestamp': u'2012-10-29T13:42:11Z+0200'}]
         for b in body:
             validate_body(b)

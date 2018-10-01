@@ -24,8 +24,7 @@ LOG = log.getLogger(__name__)
 
 
 default_schema = Schema({Required("events"): Any(list, dict),
-                         Required("timestamp"):
-                             Any(str, unicode) if six.PY2 else str})
+                         Required("timestamp"): six.text_type})
 
 
 def validate_body(request_body):
