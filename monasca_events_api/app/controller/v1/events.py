@@ -13,13 +13,12 @@
 # under the License.
 
 import falcon
-from oslo_log import log
-from voluptuous import MultipleInvalid
 
 from monasca_events_api.app.common import helpers
 from monasca_events_api.app.controller.v1 import body_validation
 from monasca_events_api.app.controller.v1 import bulk_processor
 from monasca_events_api.app.core.model import prepare_message_to_sent
+from oslo_log import log
 
 LOG = log.getLogger(__name__)
 
@@ -51,6 +50,7 @@ class Events(object):
         policy_action = 'events_api:agent_required'
 
         try:
+            req.validate(self.SUPPORTED_CONTENT_TYPES)
             request_body = helpers.read_json_msg_body(req)
             req.can(policy_action)
             project_id = req.project_id
@@ -58,14 +58,22 @@ class Events(object):
             messages = prepare_message_to_sent(request_body)
             self._processor.send_message(messages, event_project_id=project_id)
             res.status = falcon.HTTP_200
-        except MultipleInvalid as ex:
+        except falcon.HTTPUnprocessableEntity as ex:
             LOG.error('Entire bulk package was rejected, unsupported body')
             LOG.exception(ex)
-            res.status = falcon.HTTP_422
+            raise ex
+        except falcon.HTTPUnsupportedMediaType as ex:
+            LOG.error('Entire bulk package was rejected, '
+                      'unsupported media type')
+            LOG.exception(ex)
+            raise ex
         except Exception as ex:
             LOG.error('Entire bulk package was rejected')
             LOG.exception(ex)
-            res.status = falcon.HTTP_400
+            _title = ex.title if hasattr(ex, 'title') else None
+            _descr = ex.description if hasattr(ex, 'description') else None
+            raise falcon.HTTPError(falcon.HTTP_400,
+                                   title=_title, description=_descr)
 
     @property
     def version(self):

@@ -125,6 +125,35 @@ class TestEventsApi(base.BaseApiTestCase):
         )
         self.assertEqual(falcon.HTTP_422, self.srmock.status)
 
+    def test_should_fail_missing_content_type(self, bulk_processor):
+        events_resource = _init_resource(self)
+        events_resource._processor = bulk_processor
+        body = {'timestamp': '2012-10-29T13:42:11Z+0200'}
+        self.simulate_request(
+            path=ENDPOINT,
+            method='POST',
+            headers={
+                'X_ROLES': 'monasca-user'
+            },
+            body=json.dumps(body)
+        )
+        self.assertEqual(falcon.HTTP_400, self.srmock.status)
+
+    def test_should_fail_wrong_content_type(self, bulk_processor):
+        events_resource = _init_resource(self)
+        events_resource._processor = bulk_processor
+        body = {'timestamp': '2012-10-29T13:42:11Z+0200'}
+        self.simulate_request(
+            path=ENDPOINT,
+            method='POST',
+            headers={
+                'Content-Type': 'text/plain',
+                'X_ROLES': 'monasca-user'
+            },
+            body=json.dumps(body)
+        )
+        self.assertEqual(falcon.HTTP_415, self.srmock.status)
+
 
 class TestApiEventsVersion(base.BaseApiTestCase):
     @mock.patch('monasca_events_api.app.controller.v1.'
