@@ -1,4 +1,4 @@
-# Copyright 2017 FUJITSU LIMITED
+# Copyright 2018 FUJITSU LIMITED
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -36,6 +36,7 @@ class Request(falcon.Request):
         self.context = \
             request_contex.RequestContext.from_environ(self.env)
         self.is_admin = policy.check_is_admin(self.context)
+        self.project_id = self.context.project_id
 
     def can(self, action, target=None):
         return self.context.can(action, target)

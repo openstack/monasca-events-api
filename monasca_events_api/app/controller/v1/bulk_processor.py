@@ -1,4 +1,4 @@
-# Copyright 2017 FUJITSU LIMITED
+# Copyright 2018 FUJITSU LIMITED
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -12,10 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslo_log import log
-
+from monasca_common.rest import utils as rest_utils
 from monasca_events_api.app.common import events_publisher
+from monasca_events_api.app.model import envelope
 from monasca_events_api import conf
+from oslo_log import log
+from oslo_utils import encodeutils
 
 LOG = log.getLogger(__name__)
 CONF = conf.CONF
@@ -30,11 +32,11 @@ class EventsBulkProcessor(events_publisher.EventPublisher):
 
     """
 
-    def send_message(self, events):
+    def send_message(self, events, event_project_id=None):
         """Sends bulk package to kafka
 
         :param list events: received events
-
+        :param str event_project_id: project id
         """
 
         num_of_msgs = len(events) if events else 0
@@ -45,7 +47,7 @@ class EventsBulkProcessor(events_publisher.EventPublisher):
 
         for ev_el in events:
             try:
-                t_el = self._transform_message_to_json(ev_el)
+                t_el = self._transform_message(ev_el, event_project_id)
                 if t_el:
                     to_send_msgs.append(t_el)
             except Exception as ex:
@@ -62,3 +64,28 @@ class EventsBulkProcessor(events_publisher.EventPublisher):
             raise ex
         finally:
             self._check_if_all_messages_was_publish(num_of_msgs, sent_count)
+
+    def _transform_message(self, event_element, event_project_id):
+        """Transform the message
+
+        :param dict event_element: original event element
+        :param str event_project_id: project id
+        :return: message payload
+        """
+        try:
+            msg_json = rest_utils.as_json(event_element)
+            msg_json = encodeutils.safe_encode(msg_json, 'utf-8')
+
+            event_envelope = envelope.Envelope.new_envelope(
+                event=msg_json,
+                project_id=event_project_id,
+            )
+
+            msg_payload = (super(EventsBulkProcessor, self)
+                           ._transform_message(event_envelope))
+            return msg_payload
+
+        except Exception as ex:
+            LOG.error("Event transformation failed, rejecting event")
+            LOG.exception(ex)
+            return None
