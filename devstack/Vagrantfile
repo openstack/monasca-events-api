@@ -80,8 +80,13 @@ LOG_COLOR=False
 
 disable_all_services
 enable_service rabbit mysql key tempest horizon
+disable_service monasca-api monasca-thresh monasca-agent monasca-notification
+disable_service  monasca-log-persister monasca-log-agent monasca-log-metrics monasca-log-transformer monasca-log-api
 
+enable_plugin monasca-api https://git.openstack.org/openstack/monasca-api
+enable_plugin monasca-log-api https://git.openstack.org/openstack/monasca-log-api
 enable_plugin monasca-events-api https://git.openstack.org/openstack/monasca-events-api
+enable_plugin monasca-tempest-plugin https://git.openstack.org/openstack/monasca-tempest-plugin
 
 ' > local.conf
     ./stack.sh

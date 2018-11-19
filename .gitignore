@@ -15,6 +15,7 @@ ChangeLog
 MANIFEST
 monasca.log
 
+.vagrant
 *.log
 *.swp
 *.iml
