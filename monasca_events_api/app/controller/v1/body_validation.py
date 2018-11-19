@@ -14,8 +14,12 @@
 
 import six
 
+from falcon import HTTPUnprocessableEntity
 from oslo_log import log
+from voluptuous import All
 from voluptuous import Any
+from voluptuous import Length
+from voluptuous import MultipleInvalid
 from voluptuous import Required
 from voluptuous import Schema
 
@@ -23,7 +27,8 @@ from voluptuous import Schema
 LOG = log.getLogger(__name__)
 
 
-default_schema = Schema({Required("events"): Any(list, dict),
+default_schema = Schema({Required("events"): All(Any(list, dict),
+                         Length(min=1)),
                          Required("timestamp"): six.text_type})
 
 
@@ -33,7 +38,10 @@ def validate_body(request_body):
      Method validate if body contain all required fields,
      and check if all value have correct type.
 
-
     :param request_body: body
     """
-    default_schema(request_body)
+    try:
+        default_schema(request_body)
+    except MultipleInvalid as ex:
+        LOG.exception(ex)
+        raise HTTPUnprocessableEntity(description=ex.error_message)

@@ -17,6 +17,7 @@ from monasca_common.policy import policy_engine as policy
 from oslo_log import log
 
 from monasca_events_api.app.core import request_contex
+from monasca_events_api.app.core import validation
 from monasca_events_api import policies
 
 LOG = log.getLogger(__name__)
@@ -37,6 +38,20 @@ class Request(falcon.Request):
             request_contex.RequestContext.from_environ(self.env)
         self.is_admin = policy.check_is_admin(self.context)
         self.project_id = self.context.project_id
+
+    def validate(self, content_types):
+        """Performs common request validation
+
+        Validation checklist (in that order):
+
+        * :py:func:`validation.validate_content_type`
+
+        :param content_types: allowed content-types handler supports
+        :type content_types: list
+        :raises Exception: if any of the validation fails
+
+        """
+        validation.validate_content_type(self, content_types)
 
     def can(self, action, target=None):
         return self.context.can(action, target)
