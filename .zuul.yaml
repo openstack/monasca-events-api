@@ -23,10 +23,10 @@
       tox_envlist: all
       tempest_test_regex: monasca_tempest_tests.tests.event_api
       devstack_plugins:
-        monasca-api: git://git.openstack.org/openstack/monasca-api
-        monasca-log-api: git://git.openstack.org/openstack/monasca-log-api
-        monasca-events-api: git://git.openstack.org/openstack/monasca-events-api
-        monasca-tempest-plugin: git://git.openstack.org/openstack/monasca-tempest-plugin
+        monasca-api: https://git.openstack.org/openstack/monasca-api
+        monasca-log-api: https://git.openstack.org/openstack/monasca-log-api
+        monasca-events-api: https://git.openstack.org/openstack/monasca-events-api
+        monasca-tempest-plugin: https://git.openstack.org/openstack/monasca-tempest-plugin
     irrelevant-files:
       - ^.*\.rst$
       - ^.*\.md$
