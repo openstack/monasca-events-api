@@ -3,7 +3,7 @@
     parent: devstack-tempest
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/monasca-events-api
       - openstack/monasca-agent
       - openstack/monasca-api
@@ -23,10 +23,10 @@
       tox_envlist: all
       tempest_test_regex: monasca_tempest_tests.tests.event_api
       devstack_plugins:
-        monasca-api: https://git.openstack.org/openstack/monasca-api
-        monasca-log-api: https://git.openstack.org/openstack/monasca-log-api
-        monasca-events-api: https://git.openstack.org/openstack/monasca-events-api
-        monasca-tempest-plugin: https://git.openstack.org/openstack/monasca-tempest-plugin
+        monasca-api: https://opendev.org/openstack/monasca-api
+        monasca-log-api: https://opendev.org/openstack/monasca-log-api
+        monasca-events-api: https://opendev.org/openstack/monasca-events-api
+        monasca-tempest-plugin: https://opendev.org/openstack/monasca-tempest-plugin
     irrelevant-files:
       - ^.*\.rst$
       - ^.*\.md$
