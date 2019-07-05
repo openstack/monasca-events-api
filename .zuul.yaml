@@ -51,6 +51,7 @@
 - project:
     templates:
       - openstack-cover-jobs
+      - openstack-lower-constraints-jobs
       - openstack-python-jobs
       - openstack-python36-jobs
       - openstack-python37-jobs

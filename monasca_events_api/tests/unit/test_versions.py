@@ -15,7 +15,6 @@
 from six.moves.urllib.parse import urlparse as urlparse
 
 import falcon
-import ujson as json
 
 from monasca_events_api.app.controller import versions
 from monasca_events_api.tests.unit import base
@@ -27,24 +26,25 @@ def _get_versioned_url(version_id):
 
 class TestVersionApi(base.BaseApiTestCase):
 
-    def before(self):
+    def setUp(self):
+        super(TestVersionApi, self).setUp()
         self.versions = versions.Versions()
-        self.api.add_route("/version/", self.versions)
-        self.api.add_route("/version/{version_id}", self.versions)
+        self.app.add_route("/version/", self.versions)
+        self.app.add_route("/version/{version_id}", self.versions)
 
     def test_request_for_incorrect_version(self):
         incorrect_version = 'v2.0'
         uri = _get_versioned_url(incorrect_version)
 
-        self.simulate_request(
-            uri,
+        res = self.simulate_request(
+            path=uri,
             method='GET',
             headers={
                 'Content-Type': 'application/json'
             }
         )
 
-        self.assertEqual(falcon.HTTP_400, self.srmock.status)
+        self.assertEqual(falcon.HTTP_400, res.status)
 
     def test_should_return_supported_event_api_version(self):
 
@@ -80,15 +80,14 @@ class TestVersionApi(base.BaseApiTestCase):
         for version in supported_versions:
             endpoint = '%s/%s' % (version_endpoint, version)
             res = self.simulate_request(
-                endpoint,
+                path=endpoint,
                 method='GET',
                 headers={
                     'Content-Type': 'application/json'
-                },
-                decode='utf-8'
+                }
             )
-            self.assertEqual(falcon.HTTP_200, self.srmock.status)
-            response = json.loads(res)
+            self.assertEqual(falcon.HTTP_200, res.status)
+            response = res.json
             self.assertIn('links', response)
             _check_global_links(endpoint, response['links'])
             self.assertIn('elements', response)

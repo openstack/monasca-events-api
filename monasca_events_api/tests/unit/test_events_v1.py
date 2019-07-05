@@ -27,7 +27,7 @@ ENDPOINT = '/events'
 
 def _init_resource(test):
     resource = events.Events()
-    test.api.add_route(ENDPOINT, resource)
+    test.app.add_route(ENDPOINT, resource)
     return resource
 
 
@@ -44,7 +44,7 @@ class TestEventsApi(base.BaseApiTestCase):
                                                       json_file_path)
         with open(patch_to_req_simple_event_file, 'r') as fi:
             body = fi.read()
-        self.simulate_request(
+        response = self.simulate_request(
             path=ENDPOINT,
             method='POST',
             headers={
@@ -53,7 +53,7 @@ class TestEventsApi(base.BaseApiTestCase):
             },
             body=body
         )
-        self.assertEqual(falcon.HTTP_200, self.srmock.status)
+        self.assertEqual(falcon.HTTP_200, response.status)
 
     def test_should_multiple_events(self, bulk_processor):
         events_resource = _init_resource(self)
@@ -64,7 +64,7 @@ class TestEventsApi(base.BaseApiTestCase):
                                                 json_file_path)
         with open(req_multiple_events_json, 'r') as fi:
             body = fi.read()
-        self.simulate_request(
+        response = self.simulate_request(
             path=ENDPOINT,
             method='POST',
             headers={
@@ -73,12 +73,12 @@ class TestEventsApi(base.BaseApiTestCase):
             },
             body=body
         )
-        self.assertEqual(falcon.HTTP_200, self.srmock.status)
+        self.assertEqual(falcon.HTTP_200, response.status)
 
     def test_should_fail_empty_body(self, bulk_processor):
         events_resource = _init_resource(self)
         events_resource._processor = bulk_processor
-        self.simulate_request(
+        response = self.simulate_request(
             path=ENDPOINT,
             method='POST',
             headers={
@@ -87,7 +87,7 @@ class TestEventsApi(base.BaseApiTestCase):
             },
             body=''
         )
-        self.assertEqual(falcon.HTTP_400, self.srmock.status)
+        self.assertEqual(falcon.HTTP_422, response.status)
 
     def test_should_fail_missing_timestamp_in_body(self, bulk_processor):
         events_resource = _init_resource(self)
@@ -99,7 +99,7 @@ class TestEventsApi(base.BaseApiTestCase):
         with open(patch_to_req_simple_event_file, 'r') as fi:
             events = json.load(fi)['events']
         body = {'events': [events]}
-        self.simulate_request(
+        response = self.simulate_request(
             path=ENDPOINT,
             method='POST',
             headers={
@@ -108,13 +108,13 @@ class TestEventsApi(base.BaseApiTestCase):
             },
             body=json.dumps(body)
         )
-        self.assertEqual(falcon.HTTP_422, self.srmock.status)
+        self.assertEqual(falcon.HTTP_422, response.status)
 
     def test_should_fail_missing_events_in_body(self, bulk_processor):
         events_resource = _init_resource(self)
         events_resource._processor = bulk_processor
         body = {'timestamp': '2012-10-29T13:42:11Z+0200'}
-        self.simulate_request(
+        response = self.simulate_request(
             path=ENDPOINT,
             method='POST',
             headers={
@@ -123,13 +123,13 @@ class TestEventsApi(base.BaseApiTestCase):
             },
             body=json.dumps(body)
         )
-        self.assertEqual(falcon.HTTP_422, self.srmock.status)
+        self.assertEqual(falcon.HTTP_422, response.status)
 
     def test_should_fail_missing_content_type(self, bulk_processor):
         events_resource = _init_resource(self)
         events_resource._processor = bulk_processor
         body = {'timestamp': '2012-10-29T13:42:11Z+0200'}
-        self.simulate_request(
+        response = self.simulate_request(
             path=ENDPOINT,
             method='POST',
             headers={
@@ -137,13 +137,13 @@ class TestEventsApi(base.BaseApiTestCase):
             },
             body=json.dumps(body)
         )
-        self.assertEqual(falcon.HTTP_400, self.srmock.status)
+        self.assertEqual(falcon.HTTP_400, response.status)
 
     def test_should_fail_wrong_content_type(self, bulk_processor):
         events_resource = _init_resource(self)
         events_resource._processor = bulk_processor
         body = {'timestamp': '2012-10-29T13:42:11Z+0200'}
-        self.simulate_request(
+        response = self.simulate_request(
             path=ENDPOINT,
             method='POST',
             headers={
@@ -152,7 +152,7 @@ class TestEventsApi(base.BaseApiTestCase):
             },
             body=json.dumps(body)
         )
-        self.assertEqual(falcon.HTTP_415, self.srmock.status)
+        self.assertEqual(falcon.HTTP_415, response.status)
 
 
 class TestApiEventsVersion(base.BaseApiTestCase):

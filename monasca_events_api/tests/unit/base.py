@@ -100,18 +100,12 @@ class PolicyFixture(fixtures.Fixture):
                 rules[rule.name] = rule.check_str
 
 
-class MockedApi(falcon.API):
-    """Mocked API.
+class BaseApiTestCase(BaseTestCase, testing.TestCase):
 
-    Subclasses :py:class:`falcon.API` in order to overwrite
-    request_type property with custom :py:class:`request.Request`
-    """
-    def __init__(self):
-        super(MockedApi, self).__init__(
-            media_type=falcon.DEFAULT_MEDIA_TYPE,
-            request_type=request.Request
-        )
-
-
-class BaseApiTestCase(BaseTestCase, testing.TestBase):
-    api_class = MockedApi
+    def setUp(self):
+        super(BaseApiTestCase, self).setUp()
+        self.app = falcon.API(request_type=request.Request)
+        # NOTE: Falcon 2.0.0 switches the default for this from
+        # True to False so we explicitly set it here to prevent the behaviour
+        # changing between versions.
+        self.app.req_options.strip_url_path_trailing_slash = True

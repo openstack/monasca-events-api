@@ -17,7 +17,6 @@ import falcon
 from oslo_log import log
 
 from monasca_common.rest import exceptions
-from monasca_common.rest import utils as rest_utils
 
 
 LOG = log.getLogger(__name__)
@@ -31,9 +30,7 @@ def read_json_msg_body(req):
     :raises falcon.HTTPBadRequest:
     """
     try:
-        msg = req.stream.read()
-        json_msg = rest_utils.from_json(msg)
-        return json_msg
+        return req.media
     except exceptions.DataConversionException as ex:
         LOG.debug(ex)
         raise falcon.HTTPBadRequest('Bad request',
