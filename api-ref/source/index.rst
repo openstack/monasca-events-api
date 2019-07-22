@@ -15,9 +15,9 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-==============================
+=============================
 Monitoring Events Service API
-==============================
+=============================
 
 .. rest_expand_all:
 
