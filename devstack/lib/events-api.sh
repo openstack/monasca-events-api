@@ -69,6 +69,9 @@ function configure_events_api {
 
         iniset "$MONASCA_EVENTS_API_CONF" DEFAULT log_config_append $MONASCA_EVENTS_API_LOGGING_CONF
 
+        # configure events_publisher
+        iniset "$MONASCA_EVENTS_API_CONF" events_publisher kafka_url "$SERVICE_HOST:9092"
+
         # configure keystone middleware
         configure_auth_token_middleware "$MONASCA_EVENTS_API_CONF" "admin" $MONASCA_EVENTS_API_CACHE_DIR
         iniset "$MONASCA_EVENTS_API_CONF" keystone_authtoken region_name $REGION_NAME

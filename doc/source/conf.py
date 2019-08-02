@@ -15,8 +15,6 @@
 import os
 import sys
 
-from monasca_events_api.version import version_info
-
 sys.path = [
     os.path.abspath('../..'),
     os.path.abspath('../../bin'),
@@ -46,9 +44,6 @@ extensions = [
 
 # geeneral information about project
 repository_name = u'openstack/monasca-events-api'
-project = u'monasca'
-version = version_info.canonical_version_string()
-release = version_info.version_string_with_vcs()
 bug_project = u'866'
 bug_tag = u''
 copyright = u'2017-present, OpenStack Foundation'
@@ -135,16 +130,12 @@ html_theme = 'openstackdocs'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = []
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
 # directly to the root of the documentation.
 # html_extra_path = []
-
-# If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
-# using the given strftime format.
-html_last_updated_fmt = '%Y-%m-%d %H:%M'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
@@ -204,20 +195,6 @@ html_use_modindex = True
 htmlhelp_basename = 'MonitoringEventsApiDoc'
 
 # -- Options for LaTeX output ---------------------------------------------
-
-latex_elements = {
-# The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
-
-# The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
-
-# Additional stuff for the LaTeX preamble.
-#'preamble': '',
-
-# Latex figure (float) alignment
-#'figure_align': 'htbp',
-}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,

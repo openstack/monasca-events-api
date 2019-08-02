@@ -49,7 +49,7 @@ function configure_events_persister {
         iniset "$MONASCA_EVENTS_PERSISTER_CONF" kafka num_processors 0
         iniset "$MONASCA_EVENTS_PERSISTER_CONF" kafka_events num_processors 1
         iniset "$MONASCA_EVENTS_PERSISTER_CONF" kafka_events enabled True
-        iniset "$MONASCA_EVENTS_PERSISTER_CONF" kafka_events uri 127.0.0.1:9092
+        iniset "$MONASCA_EVENTS_PERSISTER_CONF" kafka_events uri $SERVICE_HOST:9092
         iniset "$MONASCA_EVENTS_PERSISTER_CONF" elasticsearch hosts ${ELASTICSEARCH_BIND_HOST}:${ELASTICSEARCH_BIND_PORT}
 
         sudo cp -f "${MONASCA_EVENTS_DEVSTACK_DIR}"/files/monasca-events-persister/events-persister-logging.conf \
