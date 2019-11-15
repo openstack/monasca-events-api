@@ -22,6 +22,8 @@
     vars:
       tox_envlist: all
       tempest_test_regex: monasca_tempest_tests.tests.event_api
+      devstack_localrc:
+        USE_PYTHON3: true
       devstack_plugins:
         monasca-api: https://opendev.org/openstack/monasca-api
         monasca-log-api: https://opendev.org/openstack/monasca-log-api
@@ -32,13 +34,6 @@
       - ^.*\.md$
       - ^doc/.*$
       - ^releasenotes/.*$
-
-- job:
-    name: monasca-events-python2
-    parent: monasca-events-tempest-base
-    vars:
-      devstack_localrc:
-        TEMPEST_PLUGINS: /opt/stack/monasca-tempest-plugin
 
 - job:
     name: monasca-events-python3
@@ -52,17 +47,14 @@
     templates:
       - openstack-cover-jobs
       - openstack-lower-constraints-jobs
-      - openstack-python-jobs
-      - openstack-python3-train-jobs
+      - openstack-python3-ussuri-jobs
       - check-requirements
       - publish-openstack-docs-pti
       - release-notes-jobs-python3
     check:
       jobs:
-        - monasca-events-python2
         - monasca-events-python3
     gate:
       queue: monasca
       jobs:
-        - monasca-events-python2
         - monasca-events-python3
