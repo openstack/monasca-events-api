@@ -44,6 +44,7 @@
         TEMPEST_PLUGINS: /opt/stack/monasca-tempest-plugin
 
 - project:
+    queue: monasca
     templates:
       - openstack-cover-jobs
       - openstack-lower-constraints-jobs
@@ -55,6 +56,5 @@
       jobs:
         - monasca-events-python3
     gate:
-      queue: monasca
       jobs:
         - monasca-events-python3
