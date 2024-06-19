@@ -3,7 +3,6 @@
     parent: devstack-tempest
     timeout: 7800
     required-projects:
-      - openstack/devstack-gate
       - openstack/monasca-events-api
       - openstack/monasca-agent
       - openstack/monasca-api
